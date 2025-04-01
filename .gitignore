@@ -1,9 +1,7 @@
 node_modules
-*.tgz
-.DS_Store
+*.DS_Store
 android/libs/*.aar
 android/.brightsdk
 android/.gradle
 android/build
 android/buildSrc
-dist
