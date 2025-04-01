@@ -48,3 +48,10 @@ android {
 dependencies {
     implementation 'com.facebook.react:react-native:+'
 }
+
+afterEvaluate {
+    // Ensure the SDK is installed before build
+    tasks.matching { it.name == 'preBuild' }.all {
+        dependsOn 'installBrightSdk'
+    }
+}
