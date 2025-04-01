@@ -5,3 +5,4 @@ android/libs/*.aar
 android/.brightsdk
 android/.gradle
 android/build
+android/buildSrc
