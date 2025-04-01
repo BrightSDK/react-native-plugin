@@ -6,3 +6,4 @@ android/.brightsdk
 android/.gradle
 android/build
 android/buildSrc
+dist

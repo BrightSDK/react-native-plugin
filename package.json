@@ -22,6 +22,9 @@
         "packageImportPath": "import com.brightsdk.react.BrightSdkNativeModulePackage;",
         "packageInstance": "new BrightSdkNativeModulePackage()"
       }
+    },
+    "scripts": {
+      "pack": "npm pack --silent && mv *.tgz ./dist"
     }
   }
   
