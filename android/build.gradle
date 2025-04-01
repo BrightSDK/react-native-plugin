@@ -1,31 +1,34 @@
 buildscript {
     repositories {
+        mavenLocal()
         mavenCentral()
         google()
     }
 
     dependencies {
-        // classpath 'com.brightdata:brightsdk-gradle-plugin:1.+'
+        classpath 'com.android.tools.build:gradle:8.1.0'
+        classpath 'com.brightdata:bright-sdk-gradle:1.+'
     }
 }
 
 allprojects {
     repositories {
-        google()
+        mavenLocal()
         mavenCentral()
+        google()
     }
 }
 
 apply plugin: 'com.android.library'
-// apply plugin: com.brightdata.BrightSdkPlugin
+apply plugin: com.brightdata.BrightSdkPlugin
 
-// brightsdk {
-//     // default values kept for reference
-//     ext = 'brightsdk'
-//     version = 'latest'
-//     useLocalCache = true
-//     dir = 'app/libs'
-// }
+brightsdk {
+    // default values kept for reference
+    ext = 'brightsdk'
+    version = 'latest'
+    useLocalCache = true
+    dir = 'libs'
+}
 
 android {
     namespace 'com.brightsdk.react'
@@ -44,6 +47,4 @@ android {
 
 dependencies {
     implementation 'com.facebook.react:react-native:+'
-    implementation 'androidx.core:core:1.9.+'
-    implementation files('libs/bright_sdk-1.522.277.aar')
 }
