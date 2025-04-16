@@ -26,6 +26,7 @@ brightsdk {
     // default values kept for reference
     ext = 'brightsdk'
     version = 'latest'
+    useMavenLocal = true
 }
 
 android {
