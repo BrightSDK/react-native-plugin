@@ -1,6 +1,5 @@
 buildscript {
     repositories {
-        mavenLocal()
         mavenCentral()
         google()
     }
@@ -13,21 +12,19 @@ buildscript {
 
 allprojects {
     repositories {
-        mavenLocal()
         mavenCentral()
         google()
     }
 }
 
 apply plugin: 'com.android.library'
-apply plugin: com.brightdata.BrightSdkPlugin
 
-brightsdk {
-    // default values kept for reference
-    ext = 'brightsdk'
-    version = 'latest'
-    useMavenLocal = true
-}
+ext.brightsdk = [
+    useMavenLocal: true,
+    version: "latest",
+    ext: "brightsdk",
+]
+apply plugin: 'com.brightdata.brightsdk-gradle'
 
 android {
     namespace 'com.brightsdk.react'
