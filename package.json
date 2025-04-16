@@ -1,6 +1,6 @@
 {
     "name": "react-native-bright-sdk",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "description": "React Native plugin to bridge BrightSDK with native Android",
     "main": "index.js",
     "author": "Vladislav S <vladislavs@brightdata.com>",
