@@ -40,4 +40,10 @@ public class BrightSdkNativeModule extends ReactContextBaseJavaModule {
 
         promise.resolve(true);
     }
+
+    @ReactMethod
+    public void initBrightSdk() {
+        BrightSdkHelper brightSdkHelper = BrightSdkHelper.getInstance();
+        brightSdkHelper.init(getCurrentActivity());
+    }
 }
