@@ -23,6 +23,7 @@ ext.brightsdk = [
     useMavenLocal: true,
     version: "latest",
     ext: "brightsdk",
+    consumerProjects: "react-native-bright-sdk,app",
 ]
 apply plugin: 'com.brightdata.brightsdk-gradle'
 
