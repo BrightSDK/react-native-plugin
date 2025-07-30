@@ -30,9 +30,10 @@ public class BrightSdkHelper {
         BrightApi.reportConsentShown(context);
     }
 
-    public static synchronized BrightSdkHelper getInstance(){
+    public static synchronized BrightSdkHelper getInstance(Context context){
         if (instance == null){
             instance = new BrightSdkHelper();
+            instance.init(context);
         }
         return instance;
     }
