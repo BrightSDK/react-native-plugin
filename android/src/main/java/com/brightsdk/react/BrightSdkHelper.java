@@ -4,17 +4,18 @@ import com.android.eapx.BrightApi;
 import com.android.eapx.Settings;
 
 import android.content.Context;
+import android.app.Activity;
 
 public class BrightSdkHelper {
 
     static volatile BrightSdkHelper instance = null;
 
-    public void init(Context context){
-        Settings settings = new Settings(context);
+    public void init(Activity activity){
+        Settings settings = new Settings(activity);
         settings.setSkipConsent(true);
         settings.setMinJobId(1);
         settings.setMaxJobId(1000);
-        start(context, settings);
+        start(activity, settings);
     }
 
     public void start(Context context, Settings settings){
