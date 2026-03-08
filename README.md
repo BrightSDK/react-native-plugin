@@ -1,6 +1,6 @@
 # react-native-bright-sdk
 
-A cross-platform React Native plugin that bridges the [BrightSDK](https://brightdata.com) with native platform APIs. It exposes native methods for SDK initialization, consent management, and opt-in/opt-out control via a unified JavaScript API.
+A cross-platform React Native plugin that bridges the [BrightSDK](https://bright-sdk.com/) with native platform APIs. It exposes native methods for SDK initialization, consent management, and opt-in/opt-out control via a unified JavaScript API.
 
 ### Platform Support
 
