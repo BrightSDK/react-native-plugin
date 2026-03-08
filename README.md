@@ -14,6 +14,7 @@ A cross-platform React Native plugin that bridges the [BrightSDK](https://bright
 ## Table of Contents
 
 - [Platform Support](#platform-support)
+- [Why Use This Plugin](#why-use-this-plugin)
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Platform Setup](#platform-setup)
@@ -30,6 +31,20 @@ A cross-platform React Native plugin that bridges the [BrightSDK](https://bright
 - [Building & Packing](#building--packing)
 - [Troubleshooting](#troubleshooting)
 - [License](#license)
+
+## Why Use This Plugin
+
+Integrating BrightSDK manually into a React Native app requires writing platform-specific native code, managing the bridge layer, and handling SDK lifecycle events across each target platform. This plugin eliminates that complexity:
+
+| Concern | Manual Integration | With This Plugin |
+| ------- | ------------------ | ---------------- |
+| **Native bridge code** | Write and maintain `ReactContextBaseJavaModule`, method annotations, and package registration yourself | Provided out of the box — zero native code required in your app |
+| **SDK lifecycle** | Call `BrightApi.init()`, `externalOptIn()`, `optOut()`, and `reportConsentShown()` directly from native code with correct context handling | Simple JS promises: `initBrightSdk()`, `handleConsentChange(bool)`, `reportConsentShown()` |
+| **Gradle / build setup** | Manually add the BrightSDK Gradle plugin, configure AAR dependencies, and wire `installBrightSdk` task ordering | Handled automatically by the plugin's `build.gradle` — just install the npm package |
+| **Consent management** | Implement consent skip, job ID ranges, and opt-in/opt-out flows in native code | Pre-configured defaults with a clean JS API for consent state changes |
+| **Cross-platform consistency** | Re-implement the bridge for each new platform (iOS, Windows, macOS) independently | Single JS API — platform implementations are added to the plugin without changing your app code |
+| **Updates & maintenance** | Track BrightSDK native API changes and update bridge code in every app | Update one npm dependency — bridge changes are absorbed by the plugin |
+| **Team onboarding** | Developers need native Android/iOS knowledge to integrate or debug the SDK | Standard React Native module pattern — frontend developers can integrate without native expertise |
 
 ## Requirements
 
