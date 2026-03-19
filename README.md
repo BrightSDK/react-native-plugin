@@ -342,7 +342,13 @@ The published package excludes local Android caches, build outputs, bundled AAR 
 GitHub Actions workflows are included for:
 
 - `CI`: runs on pushes to `main` and on pull requests, executing the test suite and package validation.
-- `Release`: runs on tags matching `*.*.*` and creates a GitHub Release with the generated `.tgz` asset attached.
+- `Release`: runs on tags matching `*.*.*`, or manually via workflow dispatch, and creates a GitHub Release with the generated `.tgz` asset attached.
+
+Recommended release flow:
+
+1. Update `package.json` to the next version and merge that change to `main`.
+2. Either push a matching numeric tag such as `1.0.7`, or run the `Release` workflow manually from `main`.
+3. The workflow verifies that tag-triggered releases match `package.json`, runs the test suite, validates the package payload, and uploads the generated `.tgz` asset to the GitHub Release.
 
 ## Troubleshooting
 

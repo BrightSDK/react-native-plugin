@@ -5,9 +5,18 @@ on:
     tags:
       - '*.*.*'
   workflow_dispatch:
+    inputs:
+      ref:
+        description: Git ref to release
+        required: false
+        default: main
 
 permissions:
   contents: write
+
+concurrency:
+  group: release-${{ github.ref_name || github.run_id }}
+  cancel-in-progress: false
 
 jobs:
   release:
@@ -16,14 +25,40 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.ref }}
+          fetch-depth: 0
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
+      - name: Resolve release metadata
+        id: release_meta
+        shell: bash
+        run: |
+          set -euo pipefail
+          version=$(node -p "require('./package.json').version")
+          sha=$(git rev-parse HEAD)
+          if [[ "${GITHUB_EVENT_NAME}" == "push" ]]; then
+            tag="${GITHUB_REF_NAME}"
+            if [[ "$tag" != "$version" ]]; then
+              echo "Tag '$tag' does not match package.json version '$version'" >&2
+              exit 1
+            fi
+          else
+            tag="$version"
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+
       - name: Run test suite
         run: npm test
+
+      - name: Validate published package contents
+        run: npm run pack:check
 
       - name: Build release tarball
         run: |
@@ -33,5 +68,9 @@ jobs:
       - name: Publish GitHub release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ steps.release_meta.outputs.tag }}
+          target_commitish: ${{ steps.release_meta.outputs.sha }}
+          name: react-native-bright-sdk ${{ steps.release_meta.outputs.version }}
           files: dist/*.tgz
           generate_release_notes: true
+          make_latest: true
