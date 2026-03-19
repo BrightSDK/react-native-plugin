@@ -1,4 +1,8 @@
 # BrightSDK plugin for React-Native
+
+[![CI](https://github.com/BrightSDK/react-native-plugin/actions/workflows/ci.yml/badge.svg)](https://github.com/BrightSDK/react-native-plugin/actions/workflows/ci.yml)
+[![Release](https://github.com/BrightSDK/react-native-plugin/actions/workflows/release.yml/badge.svg)](https://github.com/BrightSDK/react-native-plugin/actions/workflows/release.yml)
+
 A cross-platform React Native plugin that bridges the [BrightSDK](https://bright-sdk.com/) with native platform APIs. It exposes native methods for SDK initialization, consent management, and opt-in/opt-out control via a unified JavaScript API.
 
 ### Platform Support
