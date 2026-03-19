@@ -88,7 +88,7 @@ npm install ./path-to/react-native-bright-sdk-1.0.6.tgz
 ### From the git repository
 
 ```bash
-npm install git+https://github.com/vladislavs-luminati/bright-sdk-react-native.git
+npm install git+https://github.com/BrightSDK/react-native-plugin.git
 ```
 
 ## Platform Setup

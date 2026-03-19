@@ -28,6 +28,11 @@ test('package metadata exposes the React Native Android entry points', () => {
         'android/src/main/java/com/brightsdk/react/BrightSdkNativeModulePackage.java',
         'index.js',
     ]);
+    assert.equal(packageJson.repository?.type, 'git');
+    assert.equal(
+        packageJson.repository?.url,
+        'https://github.com/BrightSDK/react-native-plugin.git'
+    );
     assert.equal(
         packageJson['react-native']?.android?.packageImportPath,
         'import com.brightsdk.react.BrightSdkNativeModulePackage;'
