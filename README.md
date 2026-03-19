@@ -82,7 +82,7 @@ Integrating BrightSDK manually into a React Native app requires writing platform
 ### From npm tarball (local)
 
 ```bash
-npm install ./path-to/react-native-bright-sdk-1.0.5.tgz
+npm install ./path-to/react-native-bright-sdk-1.0.6.tgz
 ```
 
 ### From the git repository
@@ -322,6 +322,27 @@ npm run pack
 ```
 
 This runs `npm pack` and moves the resulting tarball to the `dist/` directory.
+
+## Testing & Automation
+
+Run the repository test suite locally with:
+
+```bash
+npm test
+```
+
+Validate the published package contents without generating a tarball file with:
+
+```bash
+npm run pack:check
+```
+
+The published package excludes local Android caches, build outputs, bundled AAR artifacts, and the repository test directory so release tarballs stay deterministic.
+
+GitHub Actions workflows are included for:
+
+- `CI`: runs on pushes to `main` and on pull requests, executing the test suite and package validation.
+- `Release`: runs on tags matching `*.*.*` and creates a GitHub Release with the generated `.tgz` asset attached.
 
 ## Troubleshooting
 

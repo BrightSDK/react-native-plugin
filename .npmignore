@@ -1,0 +1,5 @@
+android/.brightsdk/
+android/.gradle/
+android/build/
+android/libs/*.aar
+tests/
