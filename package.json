@@ -1,7 +1,7 @@
 {
     "name": "react-native-bright-sdk",
-    "version": "1.0.6",
-    "description": "React Native plugin to bridge BrightSDK with native Android",
+    "version": "2.0.0",
+    "description": "React Native plugin to bridge BrightSDK with native Android and Windows",
     "main": "index.js",
     "author": "Vladislav S <vladislavs@brightdata.com>",
     "license": "MIT",
@@ -19,7 +19,15 @@
       "android/src/main/java/com/brightsdk/react/BrightSdkHelper.java",
       "android/src/main/java/com/brightsdk/react/BrightSdkNativeModule.java",
       "android/src/main/java/com/brightsdk/react/BrightSdkNativeModulePackage.java",
-      "index.js"
+      "windows/BrightSdkModule/BrightSdkModule.vcxproj",
+      "windows/BrightSdkModule/BrightSdkNativeModule.h",
+      "windows/BrightSdkModule/ReactPackageProvider.h",
+      "windows/BrightSdkModule/ReactPackageProvider.cpp",
+      "windows/BrightSdkModule/lum_sdk.h",
+      "windows/BrightSdkModule/pch.h",
+      "windows/BrightSdkModule/pch.cpp",
+      "index.js",
+      "react-native.config.js"
     ],
     "react-native": {
       "android": {
@@ -27,10 +35,17 @@
         "packageInstance": "new BrightSdkNativeModulePackage()"
       }
     },
+    "react-native-windows": {
+      "projects": [
+        {
+          "directDependency": true,
+          "projectFile": "windows/BrightSdkModule/BrightSdkModule.vcxproj"
+        }
+      ]
+    },
     "scripts": {
       "test": "node --test tests/*.test.mjs",
       "pack": "npm pack --silent && mv *.tgz ./dist",
       "pack:check": "npm pack --json --dry-run"
     }
   }
-  

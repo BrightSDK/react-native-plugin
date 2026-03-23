@@ -10,9 +10,9 @@ A cross-platform React Native plugin that bridges the [BrightSDK](https://bright
 | Platform | Status |
 | -------- | ------ |
 | Android  | ✅ Supported |
+| Windows  | ✅ Supported |
 | iOS      | 🔜 Planned |
 | macOS    | 🔜 Planned |
-| Windows  | 🔜 Planned |
 
 ## Table of Contents
 
@@ -22,8 +22,8 @@ A cross-platform React Native plugin that bridges the [BrightSDK](https://bright
 - [Installation](#installation)
 - [Platform Setup](#platform-setup)
   - [Android](#android)
+  - [Windows](#windows)
   - [iOS / macOS (planned)](#ios--macos-planned)
-  - [Windows (planned)](#windows-planned)
 - [Usage](#usage)
   - [Importing the Module](#importing-the-module)
   - [Initialize the SDK](#initialize-the-sdk)
@@ -74,19 +74,20 @@ Integrating BrightSDK manually into a React Native app requires writing platform
 | Xcode         | TBD             |
 | CocoaPods     | TBD             |
 
-### Windows (planned)
+### Windows
 
-| Dependency        | Minimum Version |
-| ----------------- | --------------- |
-| React Native Windows | TBD          |
-| Visual Studio     | TBD             |
+| Dependency           | Minimum Version |
+| -------------------- | --------------- |
+| React Native Windows | >= 0.68.0       |
+| Visual Studio        | 2019 (16.0+)    |
+| Windows SDK          | 10.0.17763.0+   |
 
 ## Installation
 
 ### From npm tarball (local)
 
 ```bash
-npm install ./path-to/react-native-bright-sdk-1.0.6.tgz
+npm install ./path-to/react-native-bright-sdk-2.0.0.tgz
 ```
 
 ### From the git repository
@@ -143,6 +144,34 @@ The SDK may require internet-related permissions. Ensure your `AndroidManifest.x
 <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 ```
 
+### Windows
+
+Windows support is provided via [React Native for Windows](https://microsoft.github.io/react-native-windows/) using a C++/WinRT native module that dynamically loads `lum_sdk.dll`.
+
+#### 1. Autolinking
+
+The plugin supports `react-native-windows` autolinking. After installing the npm package, run:
+
+```bash
+npx react-native autolink-windows
+```
+
+This registers the `BrightSdkModule` project in your app's Visual Studio solution. The `react-native.config.js` and `react-native-windows` entry in `package.json` provide the autolinking metadata.
+
+#### 2. Deploy `lum_sdk.dll`
+
+The native module loads `lum_sdk.dll` at runtime via `LoadLibrary`. Place the DLL next to your app's executable so it can be found at launch. If the DLL is not present the module silently disables itself — the app will still run but SDK calls will be no-ops.
+
+#### 3. App capabilities
+
+Ensure your app's `Package.appxmanifest` includes the `internetClient` capability:
+
+```xml
+<Capabilities>
+  <Capability Name="internetClient" />
+</Capabilities>
+```
+
 ### iOS / macOS (planned)
 
 Native iOS and macOS support will be added in a future release. Setup will include:
@@ -150,14 +179,6 @@ Native iOS and macOS support will be added in a future release. Setup will inclu
 - CocoaPods or Swift Package Manager integration
 - `BrightSdkNativeModule` Objective-C/Swift bridge
 - `Info.plist` configuration for required permissions
-
-### Windows (planned)
-
-Windows support via [React Native for Windows](https://microsoft.github.io/react-native-windows/) will be added in a future release. Setup will include:
-
-- NuGet package or manual native module registration
-- C++/WinRT or C# bridge implementation
-- App capability declarations
 
 ## Usage
 
@@ -259,6 +280,11 @@ export default function App() {
 | `initBrightSdk()` | _none_ | `void` | Initializes the BrightSDK on the native side. Call once at app startup. Configures default settings: skips built-in consent UI, sets job ID range 1–1000. |
 | `handleConsentChange(value)` | `value: boolean` | `Promise<boolean>` | Opts the user in (`true`) or out (`false`) of the BrightSDK. Resolves to `true` on success. |
 | `reportConsentShown()` | _none_ | `Promise<boolean>` | Notifies the SDK that a consent prompt was displayed to the user. Resolves to `true` on success. |
+| `setAppId(appId)` | `appId: string` | `void` | Sets the application ID. Call before `initBrightSdk()`. _(Windows only)_ |
+| `getConsentChoice()` | _none_ | `Promise<boolean \| null>` | Returns `true` (peer), `false` (not peer), or `null` (unknown). _(Windows only)_ |
+| `closeSdk()` | _none_ | `void` | Shuts down the SDK and releases resources. _(Windows only)_ |
+| `getUuid()` | _none_ | `Promise<string \| null>` | Returns the SDK-assigned UUID, or `null` if unavailable. _(Windows only)_ |
+| `fixServiceStatus()` | _none_ | `void` | Attempts to repair the SDK service status. _(Windows only)_ |
 
 ## Architecture
 
@@ -276,10 +302,10 @@ The plugin follows a standard React Native native module pattern with a shared J
 │  BrightSdkNativeModule.reportConsentShown()     │
 └────────┬──────────────┬──────────────┬──────────┘
          │              │              │
-    ┌────▼────┐   ┌─────▼─────┐  ┌─────▼─────┐
-    │ Android │   │ iOS/macOS │  │  Windows  │
-    │ (Java)  │   │ (planned) │  │ (planned) │
-    └────┬────┘   └───────────┘  └───────────┘
+    ┌────▼────┐   ┌─────▼─────┐  ┌─────▼──────┐
+    │ Android │   │ iOS/macOS │  │  Windows   │
+    │ (Java)  │   │ (planned) │  │ (C++/WinRT)│
+    └────┬────┘   └───────────┘  └─────┬──────┘
          │  React Native Bridge
 ┌────────▼────────────────────────────────────────┐
 │  BrightSdkNativeModule.java                     │
@@ -314,8 +340,12 @@ The plugin follows a standard React Native native module pattern with a shared J
 | `android/src/main/java/.../BrightSdkNativeModule.java` | React Native bridge — exposes `@ReactMethod` functions to JS |
 | `android/src/main/java/.../BrightSdkNativeModulePackage.java` | Registers the native module with React Native |
 | `android/src/main/java/.../BrightSdkHelper.java` | Singleton wrapper around the BrightSDK native API |
+| `windows/BrightSdkModule/BrightSdkNativeModule.h` | Windows C++/WinRT bridge — exposes `REACT_METHOD` functions to JS, dynamically loads `lum_sdk.dll` |
+| `windows/BrightSdkModule/ReactPackageProvider.h/.cpp` | Registers the Windows native module with React Native |
+| `windows/BrightSdkModule/lum_sdk.h` | C API header for the BrightSDK Windows DLL |
+| `windows/BrightSdkModule/BrightSdkModule.vcxproj` | Visual Studio project for the native module |
+| `react-native.config.js` | Autolinking configuration for `react-native-windows` |
 | `ios/` _(planned)_ | iOS/macOS native module implementation |
-| `windows/` _(planned)_ | Windows native module implementation |
 
 ## Building & Packing
 
@@ -364,6 +394,14 @@ Recommended release flow:
 | SDK AAR not found | Run `./gradlew installBrightSdk` in the `android/` folder, or ensure `mavenCentral()` is in your repositories. |
 | `minSdkVersion` conflict | This library requires `minSdkVersion 21`. Align your app's `minSdkVersion` accordingly. |
 | Gradle plugin resolution error | Verify `com.brightdata:bright-sdk-gradle:1.+` is accessible from your build script repositories. |
+
+### Windows
+
+| Issue | Solution |
+| ----- | -------- |
+| `BrightSdkNativeModule` not found | Run `npx react-native autolink-windows` and rebuild the solution. |
+| SDK calls are no-ops | `lum_sdk.dll` is missing. Place it next to your app executable. |
+| Build errors in `BrightSdkModule.vcxproj` | Ensure you have the Windows 10 SDK (10.0.17763.0+) and `react-native-windows` installed. |
 
 ### General (all platforms)
 
