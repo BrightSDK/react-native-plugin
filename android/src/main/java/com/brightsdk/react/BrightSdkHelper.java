@@ -30,6 +30,12 @@ public class BrightSdkHelper {
     public void reportConsentShown(Context context){
         BrightApi.reportConsentShown(context);
     }
+    public int getConsentChoice(Context context){
+        return BrightApi.getConsentChoice(context);
+    }
+    public String getSdkUuid(Context context){
+        return BrightApi.getSdkUuid(context);
+    }
 
     public static synchronized BrightSdkHelper getInstance(){
         if (instance == null){

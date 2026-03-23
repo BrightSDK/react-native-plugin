@@ -87,6 +87,8 @@ test('Android helper keeps the Bright SDK lifecycle wiring intact', () => {
     assert.match(helperSource, /BrightApi\.externalOptIn\(context\);/);
     assert.match(helperSource, /BrightApi\.optOut\(context\);/);
     assert.match(helperSource, /BrightApi\.reportConsentShown\(context\);/);
+    assert.match(helperSource, /BrightApi\.getConsentChoice\(context\);/);
+    assert.match(helperSource, /BrightApi\.getSdkUuid\(context\);/);
 });
 
 test('Android native module exposes the public JS bridge methods', () => {
@@ -97,6 +99,9 @@ test('Android native module exposes the public JS bridge methods', () => {
     assert.match(nativeModuleSource, /brightSdkHelper\.enable\(getReactApplicationContext\(\)\);/);
     assert.match(nativeModuleSource, /brightSdkHelper\.disable\(getReactApplicationContext\(\)\);/);
     assert.match(nativeModuleSource, /brightSdkHelper\.reportConsentShown\(getReactApplicationContext\(\)\);/);
+    assert.match(nativeModuleSource, /public void getConsentChoice\(Promise promise\)/);
+    assert.match(nativeModuleSource, /public void getUuid\(Promise promise\)/);
+    assert.match(nativeModuleSource, /public void closeSdk\(\)/);
 });
 
 test('Windows native module exposes the public JS bridge methods', () => {

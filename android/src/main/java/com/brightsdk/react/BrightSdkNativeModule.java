@@ -46,4 +46,25 @@ public class BrightSdkNativeModule extends ReactContextBaseJavaModule {
         BrightSdkHelper brightSdkHelper = BrightSdkHelper.getInstance();
         brightSdkHelper.init(getCurrentActivity());
     }
+
+    @ReactMethod
+    public void getConsentChoice(Promise promise) {
+        Log.i(getName(), "getConsentChoice");
+        BrightSdkHelper brightSdkHelper = BrightSdkHelper.getInstance();
+        int choice = brightSdkHelper.getConsentChoice(getReactApplicationContext());
+        promise.resolve(choice);
+    }
+
+    @ReactMethod
+    public void getUuid(Promise promise) {
+        Log.i(getName(), "getUuid");
+        BrightSdkHelper brightSdkHelper = BrightSdkHelper.getInstance();
+        String uuid = brightSdkHelper.getSdkUuid(getReactApplicationContext());
+        promise.resolve(uuid);
+    }
+
+    @ReactMethod
+    public void closeSdk() {
+        Log.i(getName(), "closeSdk: no-op on Android");
+    }
 }
