@@ -87,7 +87,7 @@ Integrating BrightSDK manually into a React Native app requires writing platform
 ### From npm tarball (local)
 
 ```bash
-npm install ./path-to/react-native-bright-sdk-2.0.0.tgz
+npm install ./path-to/react-native-bright-sdk-2.0.1.tgz
 ```
 
 ### From the git repository
@@ -187,20 +187,20 @@ Native iOS and macOS support will be added in a future release. Setup will inclu
 ### Importing the Module
 
 ```javascript
-import BrightSdkNativeModule from 'react-native-bright-sdk';
+import BrightSdk from 'react-native-bright-sdk';
 ```
 
 ### Initialize the SDK
 
-Call `initBrightSdk()` once when your app starts (e.g., on the main screen mount). This initializes the underlying native BrightSDK with default settings (consent is skipped, job IDs 1–1000).
+Call `init()` once when your app starts (e.g., on the main screen mount). This initializes the underlying native BrightSDK with default settings (consent is skipped, job IDs 1–1000).
 
 ```javascript
 import { useEffect } from 'react';
-import BrightSdkNativeModule from 'react-native-bright-sdk';
+import BrightSdk from 'react-native-bright-sdk';
 
 function App() {
     useEffect(() => {
-        BrightSdkNativeModule.initBrightSdk();
+        BrightSdk.init();
     }, []);
 
     return /* ... */;
@@ -209,22 +209,22 @@ function App() {
 
 ### Handle Consent Changes
 
-Enable or disable the SDK based on user consent. Returns a `Promise<boolean>` that resolves to `true` on success.
+Enable or disable the SDK based on user consent.
 
 ```javascript
 // User opted in
-await BrightSdkNativeModule.handleConsentChange(true);
+await BrightSdk.enable();
 
 // User opted out
-await BrightSdkNativeModule.handleConsentChange(false);
+await BrightSdk.disable();
 ```
 
 ### Report Consent Shown
 
-Report to the SDK that the consent dialog was shown to the user. Returns a `Promise<boolean>`.
+Report to the SDK that the consent dialog was shown to the user.
 
 ```javascript
-await BrightSdkNativeModule.reportConsentShown();
+await BrightSdk.reportConsentShown();
 ```
 
 ### Full Example
@@ -232,17 +232,17 @@ await BrightSdkNativeModule.reportConsentShown();
 ```javascript
 import React, { useEffect, useState } from 'react';
 import { View, Button, Alert } from 'react-native';
-import BrightSdkNativeModule from 'react-native-bright-sdk';
+import BrightSdk from 'react-native-bright-sdk';
 
 export default function App() {
     const [consentGiven, setConsentGiven] = useState(false);
 
     useEffect(() => {
-        BrightSdkNativeModule.initBrightSdk();
+        BrightSdk.init();
     }, []);
 
     const showConsent = async () => {
-        await BrightSdkNativeModule.reportConsentShown();
+        await BrightSdk.reportConsentShown();
         Alert.alert(
             'Consent',
             'Do you agree to participate?',
@@ -250,14 +250,14 @@ export default function App() {
                 {
                     text: 'Decline',
                     onPress: async () => {
-                        await BrightSdkNativeModule.handleConsentChange(false);
+                        await BrightSdk.disable();
                         setConsentGiven(false);
                     },
                 },
                 {
                     text: 'Accept',
                     onPress: async () => {
-                        await BrightSdkNativeModule.handleConsentChange(true);
+                        await BrightSdk.enable();
                         setConsentGiven(true);
                     },
                 },
@@ -277,13 +277,14 @@ export default function App() {
 
 | Method | Parameters | Returns | Description |
 | ------ | ---------- | ------- | ----------- |
-| `initBrightSdk()` | _none_ | `void` | Initializes the BrightSDK on the native side. Call once at app startup. Configures default settings: skips built-in consent UI, sets job ID range 1–1000. |
-| `handleConsentChange(value)` | `value: boolean` | `Promise<boolean>` | Opts the user in (`true`) or out (`false`) of the BrightSDK. Resolves to `true` on success. |
+| `init()` | _none_ | `void` | Initializes the BrightSDK on the native side. Call once at app startup. Configures default settings: skips built-in consent UI, sets job ID range 1–1000. |
+| `enable()` | _none_ | `Promise<boolean>` | Opts the user in to the BrightSDK. Resolves to `true` on success. |
+| `disable()` | _none_ | `Promise<boolean>` | Opts the user out of the BrightSDK. Resolves to `true` on success. |
 | `reportConsentShown()` | _none_ | `Promise<boolean>` | Notifies the SDK that a consent prompt was displayed to the user. Resolves to `true` on success. |
-| `setAppId(appId)` | `appId: string` | `void` | Sets the application ID. Call before `initBrightSdk()`. _(Windows only)_ |
-| `getConsentChoice()` | _none_ | `Promise<boolean \| null>` | Returns `true` (peer), `false` (not peer), or `null` (unknown). _(Windows only)_ |
-| `closeSdk()` | _none_ | `void` | Shuts down the SDK and releases resources. _(Windows only)_ |
-| `getUuid()` | _none_ | `Promise<string \| null>` | Returns the SDK-assigned UUID, or `null` if unavailable. _(Windows only)_ |
+| `getConsentChoice()` | _none_ | `Promise<boolean \| null>` | Returns `true` (peer), `false` (not peer), or `null` (unknown). |
+| `getUuid()` | _none_ | `Promise<string \| null>` | Returns the SDK-assigned UUID, or `null` if unavailable. |
+| `close()` | _none_ | `void` | Shuts down the SDK and releases resources. No-op on Android. |
+| `setAppId(appId)` | `appId: string` | `void` | Sets the application ID. Call before `init()`. _(Windows only)_ |
 | `fixServiceStatus()` | _none_ | `void` | Attempts to repair the SDK service status. _(Windows only)_ |
 
 ## Architecture

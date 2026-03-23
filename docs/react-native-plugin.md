@@ -2,7 +2,7 @@
 
 GitHub: https://github.com/BrightSDK/react-native-plugin  
 Package: `react-native-bright-sdk`  
-Current version: `2.0.0`  
+Current version: `2.0.1`  
 License: MIT
 
 ## Overview
@@ -20,14 +20,23 @@ Current platform support from source:
 
 ## Public JavaScript API
 
-The package exports the native module directly from React Native `NativeModules`:
+The package exports a wrapper API from React Native `NativeModules`:
 
 ```js
 import { NativeModules } from 'react-native';
 
-const { BrightSdkNativeModule } = NativeModules;
+const sdk = NativeModules.BrightSdkNativeModule || {};
 
-export default BrightSdkNativeModule;
+export default {
+  init: () => sdk.initBrightSdk?.(),
+  setAppId: (appId) => sdk.setAppId?.(appId),
+  reportConsentShown: () => sdk.reportConsentShown?.(),
+  enable: () => sdk.handleConsentChange?.(true),
+  disable: () => sdk.handleConsentChange?.(false),
+  getConsentChoice: () => sdk.getConsentChoice?.() ?? Promise.resolve(null),
+  getUuid: () => sdk.getUuid?.() ?? Promise.resolve(null),
+  close: () => sdk.closeSdk?.(),
+};
 ```
 
 ### Methods exposed to JS (all platforms)
@@ -50,17 +59,25 @@ export default BrightSdkNativeModule;
 4. `setAppId(appId: string): void`
 - Sets the application ID. Should be called before `initBrightSdk()`.
 
-5. `getConsentChoice(): Promise<boolean | null>`
-- Returns `true` (peer), `false` (not peer), or `null` (unknown).
+5. `fixServiceStatus(): void`
+- Attempts to repair the SDK service status.
 
-6. `closeSdk(): void`
-- Shuts down the SDK and releases resources.
+### Cross-platform methods (Android + Windows)
+
+6. `getConsentChoice(): Promise<boolean | null>`
+- Returns `true` (peer), `false` (not peer), or `null` (unknown).
+- Android: delegates to `BrightApi.getConsentChoice(context)`.
+- Windows: delegates to `brd_sdk_get_consent_choice_c`.
 
 7. `getUuid(): Promise<string | null>`
 - Returns the SDK-assigned UUID, or `null` if unavailable.
+- Android: delegates to `BrightApi.getSdkUuid(context)`.
+- Windows: delegates to `brd_sdk_get_uuid_c`.
 
-8. `fixServiceStatus(): void`
-- Attempts to repair the SDK service status.
+8. `closeSdk(): void`
+- Shuts down the SDK and releases resources.
+- Android: no-op (SDK lifecycle is tied to the app process).
+- Windows: calls `brd_sdk_close_c` and unloads the DLL.
 
 ## Android Native Architecture
 
@@ -93,6 +110,8 @@ export default BrightSdkNativeModule;
   - `enable(Context)`
   - `disable(Context)`
   - `reportConsentShown(Context)`
+  - `getConsentChoice(Context)` — returns `int` from `BrightApi.getConsentChoice`
+  - `getSdkUuid(Context)` — returns `String` from `BrightApi.getSdkUuid`
 
 #### Initialization defaults in source
 
@@ -188,7 +207,7 @@ Notably excluded from package payload:
 ### From npm tarball
 
 ```bash
-npm install ./react-native-bright-sdk-2.0.0.tgz
+npm install ./react-native-bright-sdk-2.0.1.tgz
 ```
 
 ### From GitHub repository
@@ -201,23 +220,23 @@ npm install git+https://github.com/BrightSDK/react-native-plugin.git
 
 ```js
 import { useEffect } from 'react';
-import BrightSdkNativeModule from 'react-native-bright-sdk';
+import BrightSdk from 'react-native-bright-sdk';
 
 export default function App() {
   useEffect(() => {
-    BrightSdkNativeModule.initBrightSdk();
+    BrightSdk.init();
   }, []);
 
   async function onConsentAccepted() {
-    await BrightSdkNativeModule.handleConsentChange(true);
+    await BrightSdk.enable();
   }
 
   async function onConsentDeclined() {
-    await BrightSdkNativeModule.handleConsentChange(false);
+    await BrightSdk.disable();
   }
 
   async function onConsentDialogShown() {
-    await BrightSdkNativeModule.reportConsentShown();
+    await BrightSdk.reportConsentShown();
   }
 
   return null;
