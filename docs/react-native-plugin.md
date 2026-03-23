@@ -2,12 +2,12 @@
 
 GitHub: https://github.com/BrightSDK/react-native-plugin  
 Package: `react-native-bright-sdk`  
-Current version: `1.0.6`  
+Current version: `2.0.0`  
 License: MIT
 
 ## Overview
 
-`react-native-bright-sdk` is a React Native Android bridge for BrightSDK. It exposes a small JavaScript API backed by a native Android module so app code can:
+`react-native-bright-sdk` is a React Native bridge for BrightSDK supporting Android and Windows. It exposes a small JavaScript API backed by native platform modules so app code can:
 
 - initialize BrightSDK,
 - apply user consent decisions (opt-in / opt-out),
@@ -15,11 +15,12 @@ License: MIT
 
 Current platform support from source:
 - Android: supported
-- iOS/macOS/Windows: planned (not implemented in this repository yet)
+- Windows: supported (C++/WinRT via `react-native-windows`)
+- iOS/macOS: planned (not implemented in this repository yet)
 
 ## Public JavaScript API
 
-The package exports the Android native module directly from React Native `NativeModules`:
+The package exports the native module directly from React Native `NativeModules`:
 
 ```js
 import { NativeModules } from 'react-native';
@@ -29,21 +30,37 @@ const { BrightSdkNativeModule } = NativeModules;
 export default BrightSdkNativeModule;
 ```
 
-### Methods exposed to JS
-
-From `BrightSdkNativeModule.java`:
+### Methods exposed to JS (all platforms)
 
 1. `initBrightSdk(): void`
-- Initializes BrightSDK using the current activity context.
+- Initializes BrightSDK using the current platform context.
 
 2. `handleConsentChange(value: boolean): Promise<boolean>`
-- `true` -> calls native enable (`BrightApi.externalOptIn(context)`)  
-- `false` -> calls native disable (`BrightApi.optOut(context)`)  
+- `true` -> calls native enable (Android: `BrightApi.externalOptIn`, Windows: `brd_sdk_opt_in_c`)  
+- `false` -> calls native disable (Android: `BrightApi.optOut`, Windows: `brd_sdk_opt_out_c`)  
 - Resolves `true` on completion.
 
 3. `reportConsentShown(): Promise<boolean>`
-- Calls `BrightApi.reportConsentShown(context)`.
+- Calls `BrightApi.reportConsentShown(context)` on Android.
+- No-op on Windows (logged via `OutputDebugString`).
 - Resolves `true` on completion.
+
+### Additional methods (Windows only)
+
+4. `setAppId(appId: string): void`
+- Sets the application ID. Should be called before `initBrightSdk()`.
+
+5. `getConsentChoice(): Promise<boolean | null>`
+- Returns `true` (peer), `false` (not peer), or `null` (unknown).
+
+6. `closeSdk(): void`
+- Shuts down the SDK and releases resources.
+
+7. `getUuid(): Promise<string | null>`
+- Returns the SDK-assigned UUID, or `null` if unavailable.
+
+8. `fixServiceStatus(): void`
+- Attempts to repair the SDK service status.
 
 ## Android Native Architecture
 
@@ -137,11 +154,25 @@ Android autolinking metadata:
 }
 ```
 
+Windows autolinking metadata (`package.json` and `react-native.config.js`):
+
+```json
+"react-native-windows": {
+  "projects": [
+    {
+      "directDependency": true,
+      "projectFile": "windows/BrightSdkModule/BrightSdkModule.vcxproj"
+    }
+  ]
+}
+```
+
 Published file whitelist (`files`) includes only runtime-required sources:
 
 - `android/build.gradle`
 - `android/src/main/AndroidManifest.xml`
 - Java bridge/helper/package classes
+- `windows/BrightSdkModule/` — vcxproj, C++ headers, and sources
 - `index.js`
 
 Notably excluded from package payload:
@@ -157,7 +188,7 @@ Notably excluded from package payload:
 ### From npm tarball
 
 ```bash
-npm install ./react-native-bright-sdk-1.0.6.tgz
+npm install ./react-native-bright-sdk-2.0.0.tgz
 ```
 
 ### From GitHub repository
@@ -242,20 +273,58 @@ Release behavior from source:
 4. Builds tarball via `npm pack --pack-destination dist`.
 5. Publishes GitHub Release with `dist/*.tgz` via `softprops/action-gh-release@v2`.
 
+## Windows Native Architecture
+
+### Bridge module
+
+`windows/BrightSdkModule/BrightSdkNativeModule.h`
+
+- C++/WinRT module annotated with `REACT_MODULE(BrightSdkNativeModule)`
+- Dynamically loads `lum_sdk.dll` via `LoadLibraryW` at first use
+- Resolves all BrightSDK C API functions by name at load time
+- If the DLL is missing, SDK calls are silently skipped (app still runs)
+- Exposes `REACT_METHOD` functions matching the Android bridge API, plus additional Windows-specific methods
+
+### Package registration
+
+`windows/BrightSdkModule/ReactPackageProvider.h` / `.cpp`
+
+- Implements `IReactPackageProvider`
+- Uses `AddAttributedModules` for automatic discovery of `REACT_MODULE`-annotated types
+
+### SDK C API header
+
+`windows/BrightSdkModule/lum_sdk.h`
+
+- Declares the `__stdcall` C API surface of `lum_sdk.dll`
+- Functions: `brd_sdk_init_c`, `brd_sdk_opt_in_c`, `brd_sdk_opt_out_c`, `brd_sdk_close_c`, `brd_sdk_get_uuid_c`, etc.
+- Consent choice constants: `LUM_SDK_CHOICE_PEER`, `LUM_SDK_CHOICE_NOT_PEER`
+
+### Events
+
+- `onBrightSdkChoiceChanged` — emitted via `RCTDeviceEventEmitter` when the native SDK reports a consent choice change. Payload: `{ choice: int, isPeer: boolean }`.
+
 ## Operational Notes
 
-- This package currently bridges Android only; calling it on unsupported platforms requires platform guards in app code.
-- `initBrightSdk()` uses current activity; call it when activity/app context is fully available.
+- Android uses Java bridge via `ReactContextBaseJavaModule`; Windows uses C++/WinRT via `REACT_MODULE` macros.
+- `initBrightSdk()` uses current activity on Android; on Windows it calls through the dynamically loaded DLL.
 - Consent lifecycle should be managed by app UI (because native BrightSDK consent is skipped in helper settings).
+- On Windows, if `lum_sdk.dll` is not deployed, the module disables itself silently.
 - Keep package version and release tag aligned to avoid release workflow failure.
 
 ## File Map
 
 - `index.js` - JS entrypoint exporting native module.
+- `react-native.config.js` - Autolinking config for `react-native-windows`.
 - `android/build.gradle` - Android library + BrightSDK Gradle wiring.
 - `android/src/main/java/com/brightsdk/react/BrightSdkNativeModule.java` - React Native bridge methods.
 - `android/src/main/java/com/brightsdk/react/BrightSdkNativeModulePackage.java` - module registration package.
 - `android/src/main/java/com/brightsdk/react/BrightSdkHelper.java` - singleton BrightApi wrapper.
+- `windows/BrightSdkModule/BrightSdkNativeModule.h` - Windows C++/WinRT bridge (REACT_METHOD functions + dynamic DLL loading).
+- `windows/BrightSdkModule/ReactPackageProvider.h` / `.cpp` - Windows module registration.
+- `windows/BrightSdkModule/lum_sdk.h` - C API header for BrightSDK Windows DLL.
+- `windows/BrightSdkModule/BrightSdkModule.vcxproj` - Visual Studio project.
+- `windows/BrightSdkModule/pch.h` / `.cpp` - Precompiled header.
 - `tests/package.test.mjs` - package/API integrity tests.
 - `.github/workflows/ci.yml` - CI checks.
 - `.github/workflows/release.yml` - release pipeline.

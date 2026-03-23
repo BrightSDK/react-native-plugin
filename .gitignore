@@ -5,3 +5,8 @@ android/.brightsdk
 android/.gradle
 android/build
 android/buildSrc
+windows/BrightSdkModule/x64/
+windows/BrightSdkModule/obj/
+windows/BrightSdkModule/packages.lock.json
+windows/BrightSdkModule/Generated Files/
+dist/
