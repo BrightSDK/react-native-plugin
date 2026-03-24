@@ -21,7 +21,7 @@ inline void LogToFile(const wchar_t *msg) {
   if (!s_log.is_open()) {
     // Use LOCALAPPDATA � in MSIX this resolves to the package's LocalCache/Local
     wchar_t buf[MAX_PATH] = {};
-    DWORD len = GetEnvironmentVariableW(L"LOCALAPPDATA", buf, MAX_PATH);
+    DWORD len = GetEnvironmentVariableW(L"TEMP", buf, MAX_PATH);
     if (len > 0 && len < MAX_PATH) {
       std::wstring base(buf);
       CreateDirectoryW((base + L"\\BoostNet").c_str(), nullptr);
