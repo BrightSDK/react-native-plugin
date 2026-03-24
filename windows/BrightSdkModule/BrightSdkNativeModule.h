@@ -16,11 +16,12 @@ namespace BrightSdk {
 // File logger � writes timestamped entries to %LOCALAPPDATA%\BoostNet\Logs\brightsdk.log
 // Also forwards to OutputDebugStringW for debugger visibility.
 inline void LogToFile(const wchar_t *msg) {
-  LogToFile(msg);
+  OutputDebugStringW(msg);
   static std::wofstream s_log;
   if (!s_log.is_open()) {
     wchar_t localAppData[MAX_PATH] = {};
-    if (SUCCEEDED(SHGetFolderPathW(nullptr, CSIDL_LOCAL_APPDATA, nullptr, 0, localAppData))) {
+    DWORD len = GetEnvironmentVariableW(L"LOCALAPPDATA", localAppData, MAX_PATH);
+    if (len > 0 && len < MAX_PATH) {
       std::wstring logDir = std::wstring(localAppData) + L"\\BoostNet\\Logs";
       CreateDirectoryW((std::wstring(localAppData) + L"\\BoostNet").c_str(), nullptr);
       CreateDirectoryW(logDir.c_str(), nullptr);
