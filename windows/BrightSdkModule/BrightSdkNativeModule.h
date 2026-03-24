@@ -3,11 +3,41 @@
 #include "NativeModules.h"
 #include <winrt/Microsoft.ReactNative.h>
 #include <string>
+#include <fstream>
+#include <chrono>
+#include <shlobj.h>
 
-// BrightSDK C API — loaded dynamically so the app can run without lum_sdk.dll.
+// BrightSDK C API ï¿½ loaded dynamically so the app can run without lum_sdk.dll.
 #include "lum_sdk.h"
 
 namespace BrightSdk {
+
+
+// File logger ï¿½ writes timestamped entries to %LOCALAPPDATA%\BoostNet\Logs\brightsdk.log
+// Also forwards to OutputDebugStringW for debugger visibility.
+inline void LogToFile(const wchar_t *msg) {
+  LogToFile(msg);
+  static std::wofstream s_log;
+  if (!s_log.is_open()) {
+    wchar_t localAppData[MAX_PATH] = {};
+    if (SUCCEEDED(SHGetFolderPathW(nullptr, CSIDL_LOCAL_APPDATA, nullptr, 0, localAppData))) {
+      std::wstring logDir = std::wstring(localAppData) + L"\\BoostNet\\Logs";
+      CreateDirectoryW((std::wstring(localAppData) + L"\\BoostNet").c_str(), nullptr);
+      CreateDirectoryW(logDir.c_str(), nullptr);
+      s_log.open(logDir + L"\\brightsdk.log", std::ios::app);
+    }
+  }
+  if (s_log.is_open()) {
+    auto now = std::chrono::system_clock::now();
+    auto t = std::chrono::system_clock::to_time_t(now);
+    wchar_t timeBuf[32] = {};
+    struct tm lt;
+    localtime_s(&lt, &t);
+    wcsftime(timeBuf, 32, L"%Y-%m-%d %H:%M:%S", &lt);
+    s_log << timeBuf << L" " << msg;
+    s_log.flush();
+  }
+}
 
 // Thin dynamic-load wrapper around lum_sdk.dll so the app still launches when
 // the SDK binary has not been deployed yet (dev builds, CI, etc.).
@@ -35,7 +65,7 @@ struct BrightSdkLib {
   bool Load() {
     hMod = LoadLibraryW(L"lum_sdk.dll");
     if (!hMod) {
-      OutputDebugStringW(L"[BrightSDK] lum_sdk.dll not found — SDK disabled\n");
+      LogToFile(L"[BrightSDK] lum_sdk.dll not found ï¿½ SDK disabled\n");
       return false;
     }
     auto get = [&](const char *name) { return GetProcAddress(hMod, name); };
@@ -54,7 +84,7 @@ struct BrightSdkLib {
     get_uuid              = reinterpret_cast<decltype(get_uuid)>(get("brd_sdk_get_uuid_c"));
     fix_service_status    = reinterpret_cast<decltype(fix_service_status)>(get("brd_sdk_fix_service_status_c"));
 
-    OutputDebugStringW(L"[BrightSDK] lum_sdk.dll loaded successfully\n");
+    LogToFile(L"[BrightSDK] lum_sdk.dll loaded successfully\n");
     return true;
   }
 
@@ -77,7 +107,7 @@ struct BrightSdkNativeModule {
   void Initialize(winrt::Microsoft::ReactNative::ReactContext const &ctx) noexcept {
     m_context = ctx;
     s_instance = this;
-    OutputDebugStringW(L"[BrightSDK] Module initialized\n");
+    LogToFile(L"[BrightSDK] Module initialized\n");
   }
 
   ~BrightSdkNativeModule() {
@@ -90,12 +120,12 @@ struct BrightSdkNativeModule {
   void initBrightSdk() noexcept {
     auto &lib = GetBrightSdkLib();
     if (!lib.loaded() && !lib.Load()) {
-      OutputDebugStringW(L"[BrightSDK] initBrightSdk: SDK not available\n");
+      LogToFile(L"[BrightSDK] initBrightSdk: SDK not available\n");
       return;
     }
 
     if (lib.is_supported && !lib.is_supported()) {
-      OutputDebugStringW(L"[BrightSDK] initBrightSdk: platform not supported\n");
+      LogToFile(L"[BrightSDK] initBrightSdk: platform not supported\n");
       return;
     }
 
@@ -108,7 +138,7 @@ struct BrightSdkNativeModule {
     if (lib.init)
       lib.init();
 
-    OutputDebugStringW(L"[BrightSDK] initBrightSdk: initialized\n");
+    LogToFile(L"[BrightSDK] initBrightSdk: initialized\n");
   }
 
   // Set the application ID. Should be called before initBrightSdk().
@@ -131,17 +161,17 @@ struct BrightSdkNativeModule {
 
     if (value) {
       if (lib.opt_in) lib.opt_in();
-      OutputDebugStringW(L"[BrightSDK] handleConsentChange: opt-in\n");
+      LogToFile(L"[BrightSDK] handleConsentChange: opt-in\n");
     } else {
       if (lib.opt_out) lib.opt_out();
-      OutputDebugStringW(L"[BrightSDK] handleConsentChange: opt-out\n");
+      LogToFile(L"[BrightSDK] handleConsentChange: opt-out\n");
     }
   }
 
   // Matches Android: BrightSdkNativeModule.reportConsentShown()
   REACT_METHOD(reportConsentShown, L"reportConsentShown")
   void reportConsentShown() noexcept {
-    OutputDebugStringW(L"[BrightSDK] reportConsentShown\n");
+    LogToFile(L"[BrightSDK] reportConsentShown\n");
   }
 
   REACT_METHOD(getConsentChoice, L"getConsentChoice")
@@ -178,7 +208,7 @@ struct BrightSdkNativeModule {
     auto &lib = GetBrightSdkLib();
     if (lib.loaded() && lib.close) {
       lib.close();
-      OutputDebugStringW(L"[BrightSDK] closeSdk: closed\n");
+      LogToFile(L"[BrightSDK] closeSdk: closed\n");
     }
   }
 
@@ -198,7 +228,7 @@ struct BrightSdkNativeModule {
 
 private:
   static void WINAPI OnChoiceChanged(int choice) {
-    OutputDebugStringW((L"[BrightSDK] OnChoiceChanged: " + std::to_wstring(choice) + L"\n").c_str());
+    LogToFile((L"[BrightSDK] OnChoiceChanged: " + std::to_wstring(choice) + L"\n").c_str());
     if (!s_instance || !s_instance->m_context) return;
     bool isPeer = (choice == LUM_SDK_CHOICE_PEER);
     s_instance->m_context.EmitJSEvent(
