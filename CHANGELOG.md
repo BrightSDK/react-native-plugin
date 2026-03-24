@@ -1,5 +1,21 @@
 # Changelog
 
+## 2.0.3
+
+### Added
+- File logger on Windows: SDK diagnostic messages are now written to
+  `%TEMP%\brightsdk.log` in addition to `OutputDebugStringW`, making it easier
+  to troubleshoot MSIX-packaged deployments.
+
+### Fixed
+- Add `BrightSdkModule.def` to export `DllGetActivationFactory`, fixing WinRT
+  activation failures when the module is loaded by the React Native Windows host.
+- Add `ReactPackageProvider.idl` and `BrightSdkModule.def` to the published
+  `files` whitelist and test expectations.
+
+### Changed
+- Removed stale `.tgz` files from the repository; added `*.tgz` to `.gitignore`.
+
 ## 2.0.2
 
 ### Fixed
@@ -18,7 +34,7 @@
 ### Added
 - `getConsentChoice()`, `getUuid()`, `closeSdk()` methods to the Android
   native bridge (`BrightSdkNativeModule.java`).
-- Null-safe wrapper in `index.js` — all methods use optional chaining and
+- Null-safe wrapper in `index.js` ï¿½ all methods use optional chaining and
   return safe defaults (`Promise.resolve(null)`) when the native module is
   unavailable.
 
@@ -30,7 +46,7 @@
 
 ### Added
 - **Windows support** via `react-native-windows` autolinking.
-- `windows/BrightSdkModule/` — C++/WinRT native module that dynamically loads
+- `windows/BrightSdkModule/` ï¿½ C++/WinRT native module that dynamically loads
   `lum_sdk.dll` via `LoadLibraryW` with graceful fallback.
 - `react-native.config.js` for Windows autolinking.
 - `react-native-windows` key in `package.json` with project reference.

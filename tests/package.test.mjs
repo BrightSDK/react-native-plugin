@@ -37,6 +37,8 @@ test('package metadata exposes the React Native Android entry points', () => {
         'windows/BrightSdkModule/pch.cpp',
         'index.js',
         'react-native.config.js',
+        'windows/BrightSdkModule/ReactPackageProvider.idl',
+        'windows/BrightSdkModule/BrightSdkModule.def',
     ]);
     assert.equal(packageJson.repository?.type, 'git');
     assert.equal(

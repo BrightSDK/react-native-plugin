@@ -2,7 +2,7 @@
 
 GitHub: https://github.com/BrightSDK/react-native-plugin  
 Package: `react-native-bright-sdk`  
-Current version: `2.0.1`  
+Current version: `2.0.3`  
 License: MIT
 
 ## Overview
@@ -191,8 +191,9 @@ Published file whitelist (`files`) includes only runtime-required sources:
 - `android/build.gradle`
 - `android/src/main/AndroidManifest.xml`
 - Java bridge/helper/package classes
-- `windows/BrightSdkModule/` — vcxproj, C++ headers, and sources
+- `windows/BrightSdkModule/` — vcxproj, C++ headers, sources, `.def`, and `.idl`
 - `index.js`
+- `react-native.config.js`
 
 Notably excluded from package payload:
 
@@ -207,7 +208,7 @@ Notably excluded from package payload:
 ### From npm tarball
 
 ```bash
-npm install ./react-native-bright-sdk-2.0.1.tgz
+npm install ./react-native-bright-sdk-2.0.3.tgz
 ```
 
 ### From GitHub repository
@@ -343,6 +344,8 @@ Release behavior from source:
 - `windows/BrightSdkModule/ReactPackageProvider.h` / `.cpp` - Windows module registration.
 - `windows/BrightSdkModule/lum_sdk.h` - C API header for BrightSDK Windows DLL.
 - `windows/BrightSdkModule/BrightSdkModule.vcxproj` - Visual Studio project.
+- `windows/BrightSdkModule/BrightSdkModule.def` - Module-definition file exporting `DllGetActivationFactory` for WinRT activation.
+- `windows/BrightSdkModule/ReactPackageProvider.idl` - WinRT IDL for proper WinMD generation.
 - `windows/BrightSdkModule/pch.h` / `.cpp` - Precompiled header.
 - `tests/package.test.mjs` - package/API integrity tests.
 - `.github/workflows/ci.yml` - CI checks.

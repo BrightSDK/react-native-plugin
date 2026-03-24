@@ -87,7 +87,7 @@ Integrating BrightSDK manually into a React Native app requires writing platform
 ### From npm tarball (local)
 
 ```bash
-npm install ./path-to/react-native-bright-sdk-2.0.1.tgz
+npm install ./path-to/react-native-bright-sdk-2.0.3.tgz
 ```
 
 ### From the git repository
@@ -345,6 +345,8 @@ The plugin follows a standard React Native native module pattern with a shared J
 | `windows/BrightSdkModule/ReactPackageProvider.h/.cpp` | Registers the Windows native module with React Native |
 | `windows/BrightSdkModule/lum_sdk.h` | C API header for the BrightSDK Windows DLL |
 | `windows/BrightSdkModule/BrightSdkModule.vcxproj` | Visual Studio project for the native module |
+| `windows/BrightSdkModule/BrightSdkModule.def` | Module-definition file exporting `DllGetActivationFactory` for WinRT activation |
+| `windows/BrightSdkModule/ReactPackageProvider.idl` | WinRT IDL for proper WinMD generation |
 | `react-native.config.js` | Autolinking configuration for `react-native-windows` |
 | `ios/` _(planned)_ | iOS/macOS native module implementation |
 
