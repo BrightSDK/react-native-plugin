@@ -11,3 +11,9 @@ struct ReactPackageProvider : ReactPackageProviderT<ReactPackageProvider> {
 };
 
 } // namespace winrt::BrightSdkModule::implementation
+
+namespace winrt::BrightSdkModule::factory_implementation {
+
+struct ReactPackageProvider : ReactPackageProviderT<ReactPackageProvider, implementation::ReactPackageProvider> {};
+
+} // namespace winrt::BrightSdkModule::factory_implementation
