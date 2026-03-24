@@ -1,15 +1,13 @@
 #pragma once
-
-#include "NativeModules.h"
+#include "ReactPackageProvider.g.h"
 
 using namespace winrt::Microsoft::ReactNative;
 
 namespace winrt::BrightSdkModule::implementation {
 
-struct ReactPackageProvider : winrt::implements<ReactPackageProvider, IReactPackageProvider> {
-  void CreatePackage(IReactPackageBuilder const &packageBuilder) noexcept {
-    AddAttributedModules(packageBuilder, true);
-  }
+struct ReactPackageProvider : ReactPackageProviderT<ReactPackageProvider> {
+  ReactPackageProvider() = default;
+  void CreatePackage(IReactPackageBuilder const &packageBuilder) noexcept;
 };
 
 } // namespace winrt::BrightSdkModule::implementation

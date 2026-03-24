@@ -1,51 +1,52 @@
 {
-    "name": "react-native-bright-sdk",
-    "version": "2.0.1",
-    "description": "React Native plugin to bridge BrightSDK with native Android and Windows",
-    "main": "index.js",
-    "author": "Vladislav S <vladislavs@brightdata.com>",
-    "license": "MIT",
-    "repository": {
-      "type": "git",
-      "url": "https://github.com/BrightSDK/react-native-plugin.git"
-    },
-    "peerDependencies": {
-      "react": ">=17.0.0",
-      "react-native": ">=0.68.0"
-    },
-    "files": [
-      "android/build.gradle",
-      "android/src/main/AndroidManifest.xml",
-      "android/src/main/java/com/brightsdk/react/BrightSdkHelper.java",
-      "android/src/main/java/com/brightsdk/react/BrightSdkNativeModule.java",
-      "android/src/main/java/com/brightsdk/react/BrightSdkNativeModulePackage.java",
-      "windows/BrightSdkModule/BrightSdkModule.vcxproj",
-      "windows/BrightSdkModule/BrightSdkNativeModule.h",
-      "windows/BrightSdkModule/ReactPackageProvider.h",
-      "windows/BrightSdkModule/ReactPackageProvider.cpp",
-      "windows/BrightSdkModule/lum_sdk.h",
-      "windows/BrightSdkModule/pch.h",
-      "windows/BrightSdkModule/pch.cpp",
-      "index.js",
-      "react-native.config.js"
-    ],
-    "react-native": {
-      "android": {
-        "packageImportPath": "import com.brightsdk.react.BrightSdkNativeModulePackage;",
-        "packageInstance": "new BrightSdkNativeModulePackage()"
-      }
-    },
-    "react-native-windows": {
-      "projects": [
-        {
-          "directDependency": true,
-          "projectFile": "windows/BrightSdkModule/BrightSdkModule.vcxproj"
-        }
-      ]
-    },
-    "scripts": {
-      "test": "node --test tests/*.test.mjs",
-      "pack": "npm pack --silent && mv *.tgz ./dist",
-      "pack:check": "npm pack --json --dry-run"
+  "name": "react-native-bright-sdk",
+  "version": "2.0.1",
+  "description": "React Native plugin to bridge BrightSDK with native Android and Windows",
+  "main": "index.js",
+  "author": "Vladislav S <vladislavs@brightdata.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/BrightSDK/react-native-plugin.git"
+  },
+  "peerDependencies": {
+    "react": ">=17.0.0",
+    "react-native": ">=0.68.0"
+  },
+  "files": [
+    "android/build.gradle",
+    "android/src/main/AndroidManifest.xml",
+    "android/src/main/java/com/brightsdk/react/BrightSdkHelper.java",
+    "android/src/main/java/com/brightsdk/react/BrightSdkNativeModule.java",
+    "android/src/main/java/com/brightsdk/react/BrightSdkNativeModulePackage.java",
+    "windows/BrightSdkModule/BrightSdkModule.vcxproj",
+    "windows/BrightSdkModule/BrightSdkNativeModule.h",
+    "windows/BrightSdkModule/ReactPackageProvider.h",
+    "windows/BrightSdkModule/ReactPackageProvider.cpp",
+    "windows/BrightSdkModule/lum_sdk.h",
+    "windows/BrightSdkModule/pch.h",
+    "windows/BrightSdkModule/pch.cpp",
+    "index.js",
+    "react-native.config.js",
+    "windows/BrightSdkModule/ReactPackageProvider.idl"
+  ],
+  "react-native": {
+    "android": {
+      "packageImportPath": "import com.brightsdk.react.BrightSdkNativeModulePackage;",
+      "packageInstance": "new BrightSdkNativeModulePackage()"
     }
+  },
+  "react-native-windows": {
+    "projects": [
+      {
+        "directDependency": true,
+        "projectFile": "windows/BrightSdkModule/BrightSdkModule.vcxproj"
+      }
+    ]
+  },
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "pack": "npm pack --silent && mv *.tgz ./dist",
+    "pack:check": "npm pack --json --dry-run"
   }
+}
