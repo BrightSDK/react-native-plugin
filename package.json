@@ -1,6 +1,6 @@
 {
   "name": "react-native-bright-sdk",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "React Native plugin to bridge BrightSDK with native Android and Windows",
   "main": "index.js",
   "author": "Vladislav S <vladislavs@brightdata.com>",
@@ -28,7 +28,8 @@
     "windows/BrightSdkModule/pch.cpp",
     "index.js",
     "react-native.config.js",
-    "windows/BrightSdkModule/ReactPackageProvider.idl"
+    "windows/BrightSdkModule/ReactPackageProvider.idl",
+    "windows/BrightSdkModule/BrightSdkModule.def"
   ],
   "react-native": {
     "android": {
