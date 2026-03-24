@@ -5,7 +5,6 @@
 #include <string>
 #include <fstream>
 #include <chrono>
-#include <winrt/Windows.Storage.h>
 #include <shlobj.h>
 
 // BrightSDK C API � loaded dynamically so the app can run without lum_sdk.dll.
@@ -20,13 +19,15 @@ inline void LogToFile(const wchar_t *msg) {
   OutputDebugStringW(msg);
   static std::wofstream s_log;
   if (!s_log.is_open()) {
-    try {
-      auto localFolder = winrt::Windows::Storage::ApplicationData::Current().LocalFolder();
-      auto logDir = localFolder.Path() + L"\\BoostNet\\Logs";
-      CreateDirectoryW((localFolder.Path() + L"\\BoostNet").c_str(), nullptr);
-      CreateDirectoryW(logDir.c_str(), nullptr);
-      s_log.open(std::wstring(logDir) + L"\\brightsdk.log", std::ios::app);
-    } catch (...) {}
+    // Use LOCALAPPDATA � in MSIX this resolves to the package's LocalCache/Local
+    wchar_t buf[MAX_PATH] = {};
+    DWORD len = GetEnvironmentVariableW(L"LOCALAPPDATA", buf, MAX_PATH);
+    if (len > 0 && len < MAX_PATH) {
+      std::wstring base(buf);
+      CreateDirectoryW((base + L"\\BoostNet").c_str(), nullptr);
+      CreateDirectoryW((base + L"\\BoostNet\\Logs").c_str(), nullptr);
+      s_log.open(base + L"\\BoostNet\\Logs\\brightsdk.log", std::ios::app);
+    }
   }
   if (s_log.is_open()) {
     auto now = std::chrono::system_clock::now();
