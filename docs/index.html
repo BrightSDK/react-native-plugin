@@ -1,0 +1,707 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BrightSDK React Native Plugin</title>
+  <meta name="description" content="Official documentation for react-native-bright-sdk, the BrightSDK bridge for React Native Android and Windows apps.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f4efe7;
+      --bg-strong: #efe4d1;
+      --surface: rgba(255, 251, 245, 0.84);
+      --surface-strong: #fffaf2;
+      --text: #1d1b18;
+      --muted: #5d5548;
+      --line: rgba(29, 27, 24, 0.12);
+      --brand: #0c7b6c;
+      --brand-strong: #085b50;
+      --accent: #d96e30;
+      --shadow: 0 24px 80px rgba(87, 61, 24, 0.14);
+      --radius-xl: 28px;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --max: 1180px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Space Grotesk", "Avenir Next", "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(217, 110, 48, 0.22), transparent 34%),
+        radial-gradient(circle at 85% 15%, rgba(12, 123, 108, 0.22), transparent 26%),
+        linear-gradient(180deg, #fbf7f0 0%, var(--bg) 40%, #f7f1e8 100%);
+      line-height: 1.55;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    code,
+    pre,
+    .mono {
+      font-family: "IBM Plex Mono", "SFMono-Regular", monospace;
+    }
+
+    .shell {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      margin-top: 18px;
+      padding: 72px clamp(24px, 5vw, 56px);
+      border: 1px solid rgba(255, 255, 255, 0.45);
+      border-radius: var(--radius-xl);
+      background:
+        linear-gradient(135deg, rgba(255, 252, 247, 0.92), rgba(255, 246, 233, 0.76)),
+        linear-gradient(120deg, rgba(12, 123, 108, 0.12), rgba(217, 110, 48, 0.08));
+      box-shadow: var(--shadow);
+      isolation: isolate;
+    }
+
+    .hero::before,
+    .hero::after {
+      content: "";
+      position: absolute;
+      border-radius: 999px;
+      z-index: -1;
+      filter: blur(8px);
+    }
+
+    .hero::before {
+      width: 280px;
+      height: 280px;
+      right: -60px;
+      top: -80px;
+      background: rgba(12, 123, 108, 0.16);
+    }
+
+    .hero::after {
+      width: 220px;
+      height: 220px;
+      left: -70px;
+      bottom: -90px;
+      background: rgba(217, 110, 48, 0.15);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border: 1px solid rgba(12, 123, 108, 0.18);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.6);
+      color: var(--brand-strong);
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    h1,
+    h2,
+    h3 {
+      margin: 0;
+      line-height: 1.05;
+    }
+
+    h1 {
+      max-width: 720px;
+      margin-top: 22px;
+      font-size: clamp(42px, 7vw, 78px);
+      letter-spacing: -0.05em;
+    }
+
+    .hero p {
+      max-width: 720px;
+      margin: 22px 0 0;
+      font-size: clamp(18px, 2.6vw, 22px);
+      color: var(--muted);
+    }
+
+    .hero-actions,
+    .hero-meta,
+    .grid,
+    .support-grid,
+    .api-grid,
+    .footer-links {
+      display: grid;
+      gap: 16px;
+    }
+
+    .hero-actions {
+      grid-template-columns: repeat(auto-fit, minmax(190px, max-content));
+      margin-top: 28px;
+    }
+
+    .hero-meta {
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      margin-top: 34px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 14px 18px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      text-decoration: none;
+      font-weight: 700;
+      transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn-primary {
+      background: var(--brand);
+      color: #fff;
+      box-shadow: 0 16px 30px rgba(12, 123, 108, 0.25);
+    }
+
+    .btn-secondary {
+      border-color: rgba(29, 27, 24, 0.14);
+      background: rgba(255, 255, 255, 0.62);
+    }
+
+    .stat,
+    .card,
+    .api-card,
+    .callout,
+    .code-card,
+    .timeline,
+    .footer-card {
+      border: 1px solid var(--line);
+      background: var(--surface);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 16px 40px rgba(95, 74, 35, 0.08);
+    }
+
+    .stat {
+      padding: 18px 20px;
+      border-radius: var(--radius-lg);
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 20px;
+      margin-bottom: 4px;
+    }
+
+    section {
+      margin-top: 26px;
+      padding: clamp(26px, 4vw, 40px);
+      border-radius: var(--radius-xl);
+      background: rgba(255, 251, 245, 0.58);
+      border: 1px solid rgba(255, 255, 255, 0.42);
+      box-shadow: 0 18px 48px rgba(95, 74, 35, 0.08);
+    }
+
+    .section-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .section-head p {
+      max-width: 620px;
+      margin: 0;
+      color: var(--muted);
+    }
+
+    h2 {
+      font-size: clamp(30px, 4vw, 46px);
+      letter-spacing: -0.04em;
+    }
+
+    h3 {
+      font-size: 22px;
+      letter-spacing: -0.03em;
+    }
+
+    .grid {
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+
+    .card,
+    .api-card,
+    .code-card,
+    .timeline,
+    .footer-card {
+      padding: 22px;
+      border-radius: var(--radius-lg);
+    }
+
+    .card p,
+    .api-card p,
+    .timeline p,
+    .footer-card p,
+    li {
+      color: var(--muted);
+    }
+
+    .card ul,
+    .timeline ul {
+      padding-left: 18px;
+      margin: 14px 0 0;
+    }
+
+    .support-grid {
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    }
+
+    .support {
+      padding: 18px;
+      border-radius: var(--radius-md);
+      background: var(--surface-strong);
+      border: 1px solid var(--line);
+    }
+
+    .support .badge {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .ok {
+      background: rgba(12, 123, 108, 0.12);
+      color: var(--brand-strong);
+    }
+
+    .planned {
+      background: rgba(217, 110, 48, 0.14);
+      color: #8b461d;
+    }
+
+    .code-shell {
+      position: relative;
+      overflow: hidden;
+      border-radius: var(--radius-lg);
+      background: #1e1d1b;
+      color: #f9f3eb;
+      box-shadow: 0 24px 50px rgba(20, 18, 15, 0.26);
+    }
+
+    .code-shell::before {
+      content: "";
+      display: block;
+      height: 44px;
+      background: linear-gradient(90deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .code-shell::after {
+      content: "\2022 \2022 \2022";
+      position: absolute;
+      left: 18px;
+      top: 11px;
+      color: #f3b68d;
+      letter-spacing: 0.35em;
+      font-size: 16px;
+    }
+
+    pre {
+      margin: 0;
+      padding: 22px;
+      overflow-x: auto;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .two-up {
+      display: grid;
+      gap: 18px;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+
+    .api-grid {
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    }
+
+    .api-card strong,
+    .support strong,
+    .timeline strong,
+    .footer-card strong {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 18px;
+    }
+
+    .callout {
+      padding: 20px 22px;
+      border-radius: var(--radius-lg);
+    }
+
+    .callout strong {
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .timeline {
+      position: relative;
+    }
+
+    .timeline::before {
+      content: "";
+      position: absolute;
+      left: 24px;
+      top: 26px;
+      bottom: 26px;
+      width: 2px;
+      background: linear-gradient(180deg, rgba(12, 123, 108, 0.7), rgba(217, 110, 48, 0.35));
+    }
+
+    .step {
+      position: relative;
+      padding-left: 34px;
+      margin-top: 18px;
+    }
+
+    .step:first-of-type {
+      margin-top: 0;
+    }
+
+    .step::before {
+      content: "";
+      position: absolute;
+      left: -2px;
+      top: 8px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--brand);
+      box-shadow: 0 0 0 6px rgba(12, 123, 108, 0.14);
+    }
+
+    .footer-card {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin: 26px 0 32px;
+      background: linear-gradient(135deg, rgba(12, 123, 108, 0.12), rgba(255, 251, 245, 0.88));
+    }
+
+    .footer-links {
+      grid-template-columns: repeat(auto-fit, minmax(160px, max-content));
+    }
+
+    .mini-link {
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    @media (max-width: 720px) {
+      .shell {
+        padding: 16px;
+      }
+
+      .hero {
+        padding: 54px 22px;
+      }
+
+      section {
+        padding: 24px 18px;
+      }
+
+      .section-head {
+        margin-bottom: 22px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="hero">
+      <div class="eyebrow">BrightSDK / React Native Plugin</div>
+      <h1>Bridge BrightSDK into React Native without rebuilding the native layer in every app.</h1>
+      <p>
+        <span class="mono">react-native-bright-sdk</span> exposes BrightSDK initialization, consent management,
+        and reporting through a compact JavaScript API backed by native Android and Windows modules.
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="https://github.com/BrightSDK/react-native-plugin">View on GitHub</a>
+        <a class="btn btn-secondary" href="https://github.com/BrightSDK/react-native-plugin/blob/main/README.md">Read Full README</a>
+      </div>
+      <div class="hero-meta">
+        <div class="stat">
+          <strong>2.0.3</strong>
+          Current documented package version
+        </div>
+        <div class="stat">
+          <strong>Android + Windows</strong>
+          Supported native targets today
+        </div>
+        <div class="stat">
+          <strong>RN 0.68+</strong>
+          Minimum React Native baseline
+        </div>
+        <div class="stat">
+          <strong>MIT</strong>
+          Open source repository license
+        </div>
+      </div>
+    </header>
+
+    <section id="overview">
+      <div class="section-head">
+        <div>
+          <h2>Why this plugin exists</h2>
+        </div>
+        <p>
+          It removes repetitive platform bridge work from app teams. The JavaScript surface stays stable while the
+          Android and Windows implementations absorb BrightSDK native integration details.
+        </p>
+      </div>
+      <div class="grid">
+        <article class="card">
+          <h3>Native bridge included</h3>
+          <p>No app-specific module plumbing for Android or React Native Windows.</p>
+          <ul>
+            <li>Android package registration is provided.</li>
+            <li>Windows ships a C++/WinRT module.</li>
+            <li>Autolinking metadata is already part of the package.</li>
+          </ul>
+        </article>
+        <article class="card">
+          <h3>Consent flow control</h3>
+          <p>App code decides when consent is shown and how the choice should be applied.</p>
+          <ul>
+            <li><span class="mono">enable()</span> maps to opt-in.</li>
+            <li><span class="mono">disable()</span> maps to opt-out.</li>
+            <li><span class="mono">reportConsentShown()</span> reports the UI event.</li>
+          </ul>
+        </article>
+        <article class="card">
+          <h3>SDK packaging handled</h3>
+          <p>The Android library is already wired to the BrightSDK Gradle plugin.</p>
+          <ul>
+            <li>SDK artifacts are installed before build.</li>
+            <li>Consumer apps only add the npm package.</li>
+            <li>Native SDK changes stay centralized here.</li>
+          </ul>
+        </article>
+        <article class="card">
+          <h3>Consistent app API</h3>
+          <p>Application code uses one JavaScript module regardless of target platform.</p>
+          <ul>
+            <li>Shared startup call.</li>
+            <li>Shared consent enable/disable model.</li>
+            <li>Future iOS and macOS support can preserve the same API.</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section id="support">
+      <div class="section-head">
+        <div>
+          <h2>Platform support</h2>
+        </div>
+        <p>Current status taken from the repository README and implementation footprint.</p>
+      </div>
+      <div class="support-grid">
+        <div class="support">
+          <strong>Android</strong>
+          Native Java module using BrightSDK helper wrappers and Gradle integration.
+          <div class="badge ok">Supported</div>
+        </div>
+        <div class="support">
+          <strong>Windows</strong>
+          React Native Windows C++/WinRT module loading <span class="mono">lum_sdk.dll</span> at runtime.
+          <div class="badge ok">Supported</div>
+        </div>
+        <div class="support">
+          <strong>iOS</strong>
+          Planned for a future native bridge implementation.
+          <div class="badge planned">Planned</div>
+        </div>
+        <div class="support">
+          <strong>macOS</strong>
+          Planned alongside the iOS native module path.
+          <div class="badge planned">Planned</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="install">
+      <div class="section-head">
+        <div>
+          <h2>Install and initialize</h2>
+        </div>
+        <p>Use a release tarball locally or install directly from the repository when validating changes.</p>
+      </div>
+      <div class="two-up">
+        <div class="code-card">
+          <h3>Install</h3>
+          <div class="code-shell">
+            <pre>npm install ./react-native-bright-sdk-2.0.3.tgz
+
+# or
+
+npm install git+https://github.com/BrightSDK/react-native-plugin.git</pre>
+          </div>
+        </div>
+        <div class="code-card">
+          <h3>Initialize in app code</h3>
+          <div class="code-shell">
+            <pre>import { useEffect } from 'react';
+import BrightSdk from 'react-native-bright-sdk';
+
+export default function App() {
+  useEffect(() =&gt; {
+    BrightSdk.init();
+  }, []);
+
+  return null;
+}</pre>
+          </div>
+        </div>
+      </div>
+      <div class="callout" style="margin-top: 18px;">
+        <strong>Android setup note</strong>
+        Ensure your root Gradle build can resolve <span class="mono">com.brightdata:bright-sdk-gradle:1.+</span> and that
+        your manifest includes internet-related permissions. The plugin handles the BrightSDK AAR installation step.
+      </div>
+      <div class="callout" style="margin-top: 14px;">
+        <strong>Windows setup note</strong>
+        Run <span class="mono">npx react-native autolink-windows</span> after installation and place
+        <span class="mono">lum_sdk.dll</span> next to your app executable so the native module can load it.
+      </div>
+    </section>
+
+    <section id="api">
+      <div class="section-head">
+        <div>
+          <h2>JavaScript API</h2>
+        </div>
+        <p>The public API stays intentionally small so app code can integrate BrightSDK with minimal conditional logic.</p>
+      </div>
+      <div class="api-grid">
+        <article class="api-card">
+          <strong>init()</strong>
+          <p>Initializes BrightSDK using platform defaults. Call once near app startup.</p>
+        </article>
+        <article class="api-card">
+          <strong>enable()</strong>
+          <p>Applies an opt-in decision through the native platform implementation.</p>
+        </article>
+        <article class="api-card">
+          <strong>disable()</strong>
+          <p>Applies an opt-out decision and shuts down peer activity as required.</p>
+        </article>
+        <article class="api-card">
+          <strong>reportConsentShown()</strong>
+          <p>Notifies the SDK that the consent prompt was shown to the user.</p>
+        </article>
+        <article class="api-card">
+          <strong>getConsentChoice()</strong>
+          <p>Returns the current consent state as <span class="mono">true</span>, <span class="mono">false</span>, or <span class="mono">null</span>.</p>
+        </article>
+        <article class="api-card">
+          <strong>getUuid()</strong>
+          <p>Retrieves the SDK-generated UUID when available.</p>
+        </article>
+        <article class="api-card">
+          <strong>close()</strong>
+          <p>Closes the SDK and releases resources. On Windows this also unloads the DLL.</p>
+        </article>
+        <article class="api-card">
+          <strong>setAppId()</strong>
+          <p>Windows-only helper for setting the application ID before initialization.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="architecture">
+      <div class="section-head">
+        <div>
+          <h2>Architecture snapshot</h2>
+        </div>
+        <p>Repository structure keeps the JS contract thin and pushes platform-specific work into native modules.</p>
+      </div>
+      <div class="two-up">
+        <article class="timeline">
+          <h3>Android path</h3>
+          <div class="step">
+            <strong>BrightSdkNativeModule.java</strong>
+            <p>Exposes JS-callable methods with React Native annotations.</p>
+          </div>
+          <div class="step">
+            <strong>BrightSdkHelper.java</strong>
+            <p>Wraps the BrightSDK Android APIs and initialization defaults.</p>
+          </div>
+          <div class="step">
+            <strong>android/build.gradle</strong>
+            <p>Applies the BrightSDK Gradle plugin and ensures SDK installation before build.</p>
+          </div>
+        </article>
+        <article class="timeline">
+          <h3>Windows path</h3>
+          <div class="step">
+            <strong>BrightSdkModule.vcxproj</strong>
+            <p>Defines the React Native Windows native module project.</p>
+          </div>
+          <div class="step">
+            <strong>C++/WinRT bridge</strong>
+            <p>Delegates enable, disable, consent, and UUID calls into the BrightSDK DLL entry points.</p>
+          </div>
+          <div class="step">
+            <strong>Autolinking metadata</strong>
+            <p>Package metadata registers the Windows project with React Native tooling.</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="links">
+      <div class="section-head">
+        <div>
+          <h2>Source and release links</h2>
+        </div>
+        <p>This page is a static summary. The full README remains the canonical long-form reference.</p>
+      </div>
+      <div class="footer-card">
+        <div>
+          <strong>Need the full docs?</strong>
+          <p>Open the repository README for detailed platform setup, usage examples, tests, and release metadata.</p>
+        </div>
+        <div class="footer-links">
+          <a class="mini-link" href="https://github.com/BrightSDK/react-native-plugin">Repository</a>
+          <a class="mini-link" href="https://github.com/BrightSDK/react-native-plugin/blob/main/README.md">README</a>
+          <a class="mini-link" href="https://github.com/BrightSDK/react-native-plugin/actions">GitHub Actions</a>
+        </div>
+      </div>
+    </section>
+  </div>
+</body>
+</html>
