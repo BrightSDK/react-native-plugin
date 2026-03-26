@@ -48,6 +48,8 @@
   "scripts": {
     "test": "node --test tests/*.test.mjs",
     "pack": "npm pack --silent && mv *.tgz ./dist",
-    "pack:check": "npm pack --json --dry-run"
+    "pack:check": "npm pack --json --dry-run",
+    "setup:example": "bash ./example/scaffold.sh --skip-install && npm --prefix ./example/react-native-app install",
+    "clean:example": "bash ./example/scaffold.sh --clean-all"
   }
 }

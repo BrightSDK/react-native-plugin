@@ -32,6 +32,7 @@ A cross-platform React Native plugin that bridges the [BrightSDK](https://bright
 - [API Reference](#api-reference)
 - [Architecture](#architecture)
 - [Building & Packing](#building--packing)
+- [Minimal Example App](#minimal-example-app)
 - [Troubleshooting](#troubleshooting)
 - [License](#license)
 
@@ -386,6 +387,21 @@ Recommended release flow:
 1. Update `package.json` to the next version and merge that change to `main`.
 2. Either push a matching numeric tag such as `1.0.7`, or run the `Release` workflow manually from `main`.
 3. The workflow verifies that tag-triggered releases match `package.json`, runs the test suite, validates the package payload, and uploads the generated `.tgz` asset to the GitHub Release.
+
+## Minimal Example App
+
+A minimal integration sample is available in:
+
+- `example/react-native-app`
+
+It consumes this plugin from the local repository (`file:../..`) and demonstrates:
+
+- `BrightSdk.init()`
+- `BrightSdk.enable()` / `BrightSdk.disable()`
+- `BrightSdk.reportConsentShown()`
+- `BrightSdk.getConsentChoice()` / `BrightSdk.getUuid()`
+
+See `example/react-native-app/README.md` for setup and run commands.
 
 ## Troubleshooting
 
