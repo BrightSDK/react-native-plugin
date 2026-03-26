@@ -90,7 +90,7 @@ test('Android helper keeps the Bright SDK lifecycle wiring intact', () => {
     assert.match(helperSource, /BrightApi\.optOut\(context\);/);
     assert.match(helperSource, /BrightApi\.reportConsentShown\(context\);/);
     assert.match(helperSource, /BrightApi\.getConsentChoice\(context\);/);
-    assert.match(helperSource, /BrightApi\.getSdkUuid\(context\);/);
+    assert.match(helperSource, /BrightApi\.getSdkUuid\(\);/);
 });
 
 test('Android native module exposes the public JS bridge methods', () => {

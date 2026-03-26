@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.4
+
+### Added
+- Example app with scaffold script and React Native demo
+  (init, consent, enable/disable flow).
+
 ## 2.0.3
 
 ### Added
