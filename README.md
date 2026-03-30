@@ -1,3 +1,9 @@
+<p align="center">
+  <a href="https://bright-sdk.com/"><img src="docs/assets/brightsdk-logo.svg" alt="BrightSDK" height="50"></a>
+  &nbsp;&nbsp;&nbsp;✕&nbsp;&nbsp;&nbsp;
+  <a href="https://reactnative.dev/"><img src="docs/assets/react-native-logo.svg" alt="React Native" height="50"></a>
+</p>
+
 # BrightSDK plugin for React-Native
 
 [![CI](https://github.com/BrightSDK/react-native-plugin/actions/workflows/ci.yml/badge.svg)](https://github.com/BrightSDK/react-native-plugin/actions/workflows/ci.yml)
