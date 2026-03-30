@@ -341,135 +341,113 @@ cat > "$APP_DIR/app.json" <<'EOF'
 EOF
 
 cat > "$APP_DIR/src/App.js" <<'EOF'
-import React, {useEffect, useState} from 'react';
-import {SafeAreaView, ScrollView, StyleSheet, Text, View, Pressable, Alert, Modal} from 'react-native';
+import React, {useEffect, useState, useCallback} from 'react';
+import {SafeAreaView, ScrollView, StyleSheet, Text, View, Pressable, Alert} from 'react-native';
 import BrightSdk from 'react-native-bright-sdk';
 
-function ActionButton({title, onPress}) {
+function ActionButton({title, onPress, color}) {
   return (
-    <Pressable style={styles.button} onPress={onPress}>
+    <Pressable style={[styles.button, color && {backgroundColor: color}]} onPress={onPress}>
       <Text style={styles.buttonText}>{title}</Text>
     </Pressable>
   );
 }
 
 export default function App() {
-  const [consentChoice, setConsentChoice] = useState('unknown');
-  const [uuid, setUuid] = useState('not loaded');
+  const [consentChoice, setConsentChoice] = useState(null);
+  const [uuid, setUuid] = useState(null);
   const [consentVisible, setConsentVisible] = useState(false);
-  const isEnabled = consentChoice === '1';
+  const isEnabled = consentChoice === true;
 
-  useEffect(() => {
-    let isActive = true;
-
-    const initSdk = async () => {
-      try {
-        await BrightSdk.init();
-        if (isActive) {
-          await refreshState();
-        }
-      } catch (e) {
-        Alert.alert('BrightSDK init failed', String(e));
-      }
-    };
-
-    initSdk();
-    return () => {
-      isActive = false;
-    };
+  const refreshState = useCallback(async () => {
+    try {
+      const choice = await BrightSdk.getConsentChoice();
+      const sdkUuid = await BrightSdk.getUuid();
+      setConsentChoice(choice);
+      setUuid(sdkUuid || null);
+    } catch (_) {}
   }, []);
 
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      await BrightSdk.init();
+      if (active) await refreshState();
+    })();
+    return () => { active = false; };
+  }, [refreshState]);
+
+  useEffect(() => {
+    const sub = BrightSdk.onChoiceChanged((event) => {
+      setConsentChoice(event.isPeer);
+      refreshState();
+    });
+    return () => sub?.remove?.();
+  }, [refreshState]);
+
   const enableSdk = async () => {
-    try {
-      await BrightSdk.enable();
-      await refreshState();
-    } catch (e) {
-      Alert.alert('Enable failed', String(e));
-    }
+    setConsentChoice(true);
+    await BrightSdk.enable();
+    await refreshState();
   };
 
   const disableSdk = async () => {
-    try {
-      await BrightSdk.disable();
-      await refreshState();
-    } catch (e) {
-      Alert.alert('Disable failed', String(e));
-    }
+    setConsentChoice(false);
+    await BrightSdk.disable();
+    await refreshState();
   };
 
-  const onConsentAccept = async () => {
-    try {
-      await BrightSdk.reportConsentShown();
-      await enableSdk();
-      setConsentVisible(false);
-    } catch (e) {
-      Alert.alert('Consent accept failed', String(e));
-    }
+  const handleAccept = async () => {
+    await BrightSdk.reportConsentShown();
+    await enableSdk();
+    setConsentVisible(false);
   };
 
-  const onConsentDecline = async () => {
-    try {
-      await BrightSdk.reportConsentShown();
-      await disableSdk();
-      setConsentVisible(false);
-    } catch (e) {
-      Alert.alert('Consent decline failed', String(e));
-    }
+  const handleDecline = async () => {
+    await BrightSdk.reportConsentShown();
+    await disableSdk();
+    setConsentVisible(false);
   };
 
-  const refreshState = async () => {
-    try {
-      const [choice, sdkUuid] = await Promise.all([
-        BrightSdk.getConsentChoice(),
-        BrightSdk.getUuid(),
-      ]);
-      setConsentChoice(String(choice));
-      setUuid(sdkUuid || 'null');
-    } catch (e) {
-      Alert.alert('Failed to refresh state', String(e));
-    }
-  };
+  if (consentVisible) {
+    return (
+      <SafeAreaView style={styles.modalRoot}>
+        <View style={styles.modalHeader}>
+          <Text style={styles.modalTitle}>Consent</Text>
+          <Pressable onPress={() => setConsentVisible(false)}>
+            <Text style={styles.modalClose}>Close</Text>
+          </Pressable>
+        </View>
+        <View style={styles.webviewFallback}>
+          <Text style={styles.fallbackTitle}>BrightSDK Consent</Text>
+          <Text style={styles.fallbackText}>
+            This app uses BrightSDK. By accepting, you agree to let the SDK
+            operate in the background. You can change this at any time.
+          </Text>
+          <ActionButton title="Accept" onPress={handleAccept} />
+          <ActionButton title="Decline" onPress={handleDecline} />
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  const statusText = consentChoice === null ? 'Unknown' : isEnabled ? 'Enabled' : 'Disabled';
 
   return (
     <SafeAreaView style={styles.root}>
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.title}>BrightSDK React Native Minimal Example</Text>
-        <Text style={styles.subtitle}>Minimal flow: init, consent change, report consent shown, and state read.</Text>
+        <Text style={styles.title}>BrightSDK React Native Example</Text>
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Current state</Text>
-          <Text style={styles.row}>Consent: {consentChoice}</Text>
-          <Text style={styles.row}>UUID: {uuid}</Text>
+          <Text style={styles.cardTitle}>Status</Text>
+          <Text style={[styles.status, {color: isEnabled ? '#1a8f3c' : '#8f1a1a'}]}>{statusText}</Text>
+          {uuid && <Text style={styles.uuid}>UUID: {uuid}</Text>}
         </View>
         <ActionButton
           title={isEnabled ? 'Disable' : 'Enable'}
+          color={isEnabled ? '#c0392b' : '#27ae60'}
           onPress={isEnabled ? disableSdk : () => setConsentVisible(true)}
         />
         <ActionButton title="Show Consent" onPress={() => setConsentVisible(true)} />
-
-        <Modal visible={consentVisible} animationType="slide" onRequestClose={() => setConsentVisible(false)}>
-          <SafeAreaView style={styles.modalRoot}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Consent</Text>
-              <Pressable onPress={() => setConsentVisible(false)}>
-                <Text style={styles.modalClose}>Close</Text>
-              </Pressable>
-            </View>
-            <View style={styles.consentWrap}>
-              <Text style={styles.consentTitle}>Help Keep This App Free</Text>
-              <Text style={styles.consentBody}>
-                By opting in, you allow BrightSDK network sharing. You can change this anytime.
-              </Text>
-              <View style={styles.consentButtons}>
-                <Pressable style={[styles.consentButton, styles.declineButton]} onPress={onConsentDecline}>
-                  <Text style={styles.declineText}>Decline</Text>
-                </Pressable>
-                <Pressable style={[styles.consentButton, styles.acceptButton]} onPress={onConsentAccept}>
-                  <Text style={styles.acceptText}>Accept</Text>
-                </Pressable>
-              </View>
-            </View>
-          </SafeAreaView>
-        </Modal>
       </ScrollView>
     </SafeAreaView>
   );
@@ -479,10 +457,10 @@ const styles = StyleSheet.create({
   root: {flex: 1, backgroundColor: '#f3f6fb'},
   content: {padding: 20, gap: 12},
   title: {fontSize: 22, fontWeight: '700', color: '#0f1f2f'},
-  subtitle: {fontSize: 14, lineHeight: 20, color: '#3a4b5c'},
   card: {padding: 14, borderRadius: 10, backgroundColor: '#ffffff', borderWidth: 1, borderColor: '#d9e3ee'},
-  cardTitle: {fontSize: 16, fontWeight: '700', marginBottom: 6, color: '#0f1f2f'},
-  row: {fontSize: 14, color: '#223345', marginTop: 2},
+  cardTitle: {fontSize: 14, fontWeight: '600', color: '#6b7b8d', marginBottom: 4},
+  status: {fontSize: 22, fontWeight: '700'},
+  uuid: {fontSize: 12, color: '#6b7b8d', marginTop: 6, fontFamily: 'monospace'},
   button: {backgroundColor: '#115e9b', paddingVertical: 12, paddingHorizontal: 14, borderRadius: 10},
   buttonText: {color: '#ffffff', fontWeight: '700', fontSize: 14, textAlign: 'center'},
   modalRoot: {flex: 1, backgroundColor: '#ffffff'},
@@ -497,28 +475,9 @@ const styles = StyleSheet.create({
   },
   modalTitle: {fontSize: 16, fontWeight: '700', color: '#0f1f2f'},
   modalClose: {fontSize: 14, fontWeight: '600', color: '#115e9b'},
-  consentWrap: {
-    margin: 16,
-    padding: 18,
-    borderRadius: 14,
-    backgroundColor: '#f4f8fd',
-    borderWidth: 1,
-    borderColor: '#d4e2f1',
-  },
-  consentTitle: {fontSize: 22, fontWeight: '800', color: '#0f1f2f', marginBottom: 10},
-  consentBody: {fontSize: 15, lineHeight: 22, color: '#2b3c4d', marginBottom: 18},
-  consentButtons: {flexDirection: 'row', gap: 10},
-  consentButton: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  declineButton: {backgroundColor: '#ffffff', borderWidth: 1, borderColor: '#c2d4e7'},
-  acceptButton: {backgroundColor: '#0f7d4f'},
-  declineText: {fontSize: 14, fontWeight: '700', color: '#1f3550'},
-  acceptText: {fontSize: 14, fontWeight: '700', color: '#ffffff'},
+  webviewFallback: {flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20, gap: 12},
+  fallbackTitle: {fontSize: 20, fontWeight: '700', color: '#0f1f2f', marginBottom: 8},
+  fallbackText: {fontSize: 15, color: '#3a4b5c', textAlign: 'center', lineHeight: 22, marginBottom: 16},
 });
 EOF
 
