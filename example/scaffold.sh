@@ -554,6 +554,19 @@ EOF
 
 rm -rf "$GEN_DIR"
 
+# Ensure example/brightsdk/ directory exists for SDK binaries.
+# Users must place lum_sdk.dll (and optionally brd_config.json) here.
+# The Windows .vcxproj copies these to the build output at build time.
+SDK_DIR="$ROOT_DIR/brightsdk"
+mkdir -p "$SDK_DIR"
+if [[ ! -f "$SDK_DIR/lum_sdk.dll" ]]; then
+  echo ""
+  echo "NOTE: Place BrightSDK binaries in example/brightsdk/"
+  echo "  Required: lum_sdk.dll (matching your target architecture)"
+  echo "  Optional: brd_config.json"
+  echo "  Without lum_sdk.dll, SDK calls will be no-ops at runtime."
+fi
+
 echo "Scaffold complete."
 echo "Next steps:"
 echo "  npm --prefix ./example/react-native-app install"

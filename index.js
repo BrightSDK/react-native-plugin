@@ -1,4 +1,4 @@
-import { NativeModules } from 'react-native';
+import { NativeModules, DeviceEventEmitter } from 'react-native';
 
 const sdk = NativeModules.BrightSdkNativeModule || {};
 
@@ -11,4 +11,6 @@ export default {
   getConsentChoice: () => sdk.getConsentChoice?.() ?? Promise.resolve(null),
   getUuid: () => sdk.getUuid?.() ?? Promise.resolve(null),
   close: () => sdk.closeSdk?.(),
+  onChoiceChanged: (callback) =>
+    DeviceEventEmitter.addListener('onBrightSdkChoiceChanged', callback),
 };
