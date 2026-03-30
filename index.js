@@ -11,6 +11,7 @@ export default {
   getConsentChoice: () => sdk.getConsentChoice?.() ?? Promise.resolve(null),
   getUuid: () => sdk.getUuid?.() ?? Promise.resolve(null),
   close: () => sdk.closeSdk?.(),
+  fixServiceStatus: () => sdk.fixServiceStatus?.(),
   onChoiceChanged: (callback) =>
     DeviceEventEmitter.addListener('onBrightSdkChoiceChanged', callback),
 };

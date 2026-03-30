@@ -30,9 +30,8 @@ public class BrightSdkHelper {
     public void reportConsentShown(Context context){
         BrightApi.reportConsentShown(context);
     }
-    public int getConsentChoice(Context context){
-        Boolean consent = BrightApi.getConsentChoice(context);
-        return Boolean.TRUE.equals(consent) ? 1 : 0;
+    public Boolean getConsentChoice(Context context){
+        return BrightApi.getConsentChoice(context);
     }
     public String getSdkUuid(Context context){
         return BrightApi.getSdkUuid();
