@@ -2,6 +2,18 @@
 
 Minimal React Native app demonstrating `react-native-bright-sdk` integration.
 
+## Screenshots
+
+### Android
+
+| SDK Enabled | Consent Screen | SDK Disabled |
+|:-----------:|:--------------:|:------------:|
+| ![SDK Enabled](assets/screenshot_main.png) | ![Consent](assets/screenshot_consent.png) | ![SDK Disabled](assets/screenshot_disabled.png) |
+
+### Windows
+
+_Coming soon_
+
 ## Prerequisites
 
 - Node.js >= 18

@@ -512,6 +512,10 @@ cat > "$APP_DIR/package.json" <<'EOF'
 }
 EOF
 
+cat > "$APP_DIR/.npmrc" <<'EOF'
+legacy-peer-deps=true
+EOF
+
 rm -rf "$GEN_DIR"
 
 # Ensure example/brightsdk/ directory exists for SDK binaries.
