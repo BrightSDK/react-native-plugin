@@ -542,7 +542,8 @@ cat > "$APP_DIR/package.json" <<'EOF'
     "@react-native/virtualized-lists": "0.81.0",
     "react": "19.1.0",
     "react-native": "0.81.0",
-    "react-native-bright-sdk": "file:../.."
+    "react-native-bright-sdk": "file:../..",
+    "react-native-windows": "0.81.9"
   },
   "devDependencies": {
     "@react-native-community/cli": "15.0.1",
@@ -572,3 +573,8 @@ echo "Next steps:"
 echo "  npm --prefix ./example/react-native-app install"
 echo "  npm --prefix ./example/react-native-app run start"
 echo "  npm --prefix ./example/react-native-app run android"
+echo ""
+echo "Windows (run on Windows):"
+echo "  cd example/react-native-app"
+echo "  npx react-native-windows-init --overwrite --namespace BrightSdkExampleApp"
+echo "  react-native run-windows"

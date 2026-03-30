@@ -51,8 +51,12 @@ public class BrightSdkNativeModule extends ReactContextBaseJavaModule {
     public void getConsentChoice(Promise promise) {
         Log.i(getName(), "getConsentChoice");
         BrightSdkHelper brightSdkHelper = BrightSdkHelper.getInstance();
-        int choice = brightSdkHelper.getConsentChoice(getReactApplicationContext());
-        promise.resolve(choice);
+        Boolean choice = brightSdkHelper.getConsentChoice(getReactApplicationContext());
+        if (choice == null) {
+            promise.resolve(null);
+        } else {
+            promise.resolve(choice);
+        }
     }
 
     @ReactMethod

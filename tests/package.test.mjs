@@ -79,6 +79,7 @@ test('index exports the Bright SDK wrapper from react-native NativeModules', () 
     assert.match(indexSource, /getConsentChoice:\s*\(\)\s*=>/);
     assert.match(indexSource, /getUuid:\s*\(\)\s*=>/);
     assert.match(indexSource, /close:\s*\(\)\s*=>/);
+    assert.match(indexSource, /fixServiceStatus:\s*\(\)\s*=>/);
     assert.match(indexSource, /onChoiceChanged:\s*\(callback\)\s*=>/);
 });
 
