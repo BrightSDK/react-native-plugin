@@ -401,7 +401,7 @@ It consumes this plugin from the local repository (`file:../..`) and demonstrate
 - `BrightSdk.reportConsentShown()`
 - `BrightSdk.getConsentChoice()` / `BrightSdk.getUuid()`
 
-See `example/react-native-app/README.md` for setup and run commands.
+See `example/README.md` for setup and run commands.
 
 ## Troubleshooting
 

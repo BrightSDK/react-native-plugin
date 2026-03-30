@@ -67,24 +67,33 @@ struct BrightSdkLib {
   bool Load() {
     hMod = LoadLibraryW(L"lum_sdk.dll");
     if (!hMod) {
-      LogToFile(L"[BrightSDK] lum_sdk.dll not found � SDK disabled\n");
+      LogToFile(L"[BrightSDK] lum_sdk.dll not found — SDK disabled\n");
       return false;
     }
-    auto get = [&](const char *name) { return GetProcAddress(hMod, name); };
+    // On x86, stdcall exports are decorated as _name@N where N is the
+    // byte size of parameters.  Try the plain name first (works on x64/ARM64),
+    // then fall back to the decorated form.
+    auto get = [&](const char *name, int paramBytes) -> FARPROC {
+      FARPROC fn = GetProcAddress(hMod, name);
+      if (fn) return fn;
+      char decorated[256];
+      snprintf(decorated, sizeof(decorated), "_%s@%d", name, paramBytes);
+      return GetProcAddress(hMod, decorated);
+    };
 
-    is_supported          = reinterpret_cast<decltype(is_supported)>(get("brd_sdk_is_supported_c"));
-    set_appid             = reinterpret_cast<decltype(set_appid)>(get("brd_sdk_set_appid_c"));
-    set_choice_change_cb  = reinterpret_cast<decltype(set_choice_change_cb)>(get("brd_sdk_set_choice_change_cb_c"));
-    set_service_status_cb = reinterpret_cast<decltype(set_service_status_cb)>(get("brd_sdk_set_service_status_change_cb_c"));
-    set_skip_consent      = reinterpret_cast<decltype(set_skip_consent)>(get("brd_sdk_set_skip_consent_on_init_c"));
-    init                  = reinterpret_cast<decltype(init)>(get("brd_sdk_init_c"));
-    close                 = reinterpret_cast<decltype(close)>(get("brd_sdk_close_c"));
-    show_consent          = reinterpret_cast<decltype(show_consent)>(get("brd_sdk_show_consent_c"));
-    opt_out               = reinterpret_cast<decltype(opt_out)>(get("brd_sdk_opt_out_c"));
-    opt_in                = reinterpret_cast<decltype(opt_in)>(get("brd_sdk_opt_in_c"));
-    get_consent_choice    = reinterpret_cast<decltype(get_consent_choice)>(get("brd_sdk_get_consent_choice_c"));
-    get_uuid              = reinterpret_cast<decltype(get_uuid)>(get("brd_sdk_get_uuid_c"));
-    fix_service_status    = reinterpret_cast<decltype(fix_service_status)>(get("brd_sdk_fix_service_status_c"));
+    is_supported          = reinterpret_cast<decltype(is_supported)>(get("brd_sdk_is_supported_c", 0));
+    set_appid             = reinterpret_cast<decltype(set_appid)>(get("brd_sdk_set_appid_c", 4));
+    set_choice_change_cb  = reinterpret_cast<decltype(set_choice_change_cb)>(get("brd_sdk_set_choice_change_cb_c", 4));
+    set_service_status_cb = reinterpret_cast<decltype(set_service_status_cb)>(get("brd_sdk_set_service_status_change_cb_c", 4));
+    set_skip_consent      = reinterpret_cast<decltype(set_skip_consent)>(get("brd_sdk_set_skip_consent_on_init_c", 4));
+    init                  = reinterpret_cast<decltype(init)>(get("brd_sdk_init_c", 0));
+    close                 = reinterpret_cast<decltype(close)>(get("brd_sdk_close_c", 0));
+    show_consent          = reinterpret_cast<decltype(show_consent)>(get("brd_sdk_show_consent_c", 0));
+    opt_out               = reinterpret_cast<decltype(opt_out)>(get("brd_sdk_opt_out_c", 0));
+    opt_in                = reinterpret_cast<decltype(opt_in)>(get("brd_sdk_opt_in_c", 0));
+    get_consent_choice    = reinterpret_cast<decltype(get_consent_choice)>(get("brd_sdk_get_consent_choice_c", 0));
+    get_uuid              = reinterpret_cast<decltype(get_uuid)>(get("brd_sdk_get_uuid_c", 0));
+    fix_service_status    = reinterpret_cast<decltype(fix_service_status)>(get("brd_sdk_fix_service_status_c", 0));
 
     LogToFile(L"[BrightSDK] lum_sdk.dll loaded successfully\n");
     return true;

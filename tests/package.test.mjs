@@ -68,7 +68,7 @@ test('package metadata exposes react-native-windows autolinking config', () => {
 });
 
 test('index exports the Bright SDK wrapper from react-native NativeModules', () => {
-    assert.match(indexSource, /import\s+\{\s*NativeModules\s*\}\s+from\s+'react-native';/);
+    assert.match(indexSource, /import\s+\{[^}]*NativeModules[^}]*\}\s+from\s+'react-native';/);
     assert.match(indexSource, /NativeModules\.BrightSdkNativeModule/);
     assert.match(indexSource, /export\s+default\s+\{/);
     assert.match(indexSource, /init:\s*\(\)\s*=>/);
@@ -79,6 +79,7 @@ test('index exports the Bright SDK wrapper from react-native NativeModules', () 
     assert.match(indexSource, /getConsentChoice:\s*\(\)\s*=>/);
     assert.match(indexSource, /getUuid:\s*\(\)\s*=>/);
     assert.match(indexSource, /close:\s*\(\)\s*=>/);
+    assert.match(indexSource, /onChoiceChanged:\s*\(callback\)\s*=>/);
 });
 
 test('Android helper keeps the Bright SDK lifecycle wiring intact', () => {
